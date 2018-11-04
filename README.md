@@ -18,7 +18,7 @@ mvn clean package
 ```
 The build project resides in the /target directory.
 ### JAR
-To run the built project, use the following command in the /targed directory
+To run the built project, use the following command in the /target directory
 ```
 java -jar rpg-cli-1.0.jar
 ```
