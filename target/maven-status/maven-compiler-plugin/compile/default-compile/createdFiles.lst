@@ -1,0 +1,7 @@
+com\rpg\app\App.class
+com\rpg\datamanagement\ResourceManager.class
+com\rpg\characters\Enemy.class
+com\rpg\map\Map.class
+com\rpg\datamanagement\SaveData.class
+com\rpg\characters\Player.class
+com\rpg\app\Game.class
