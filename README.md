@@ -12,7 +12,7 @@ A typical turn-based rpg with its own exotic difficulty by making the player exp
 * [Maven](https://maven.apache.org/) - Dependency Management
 ## Installing
 ### Building
-Since the project is based on Maven, it can be built using the following command
+Since the project is based on Maven, it can be built using the following command on the root of the project
 ```
 mvn clean package
 ```
