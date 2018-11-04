@@ -16,7 +16,7 @@ Since the project is based on Maven, it can be built using the following command
 ```
 mvn clean package
 ```
-The build project resides in the /target directory.
+The built project resides in the /target directory.
 ### JAR
 To run the built project, use the following command in the /target directory
 ```
