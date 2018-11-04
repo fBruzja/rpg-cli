@@ -11,18 +11,18 @@ A typical turn-based rpg with it's own exotic difficulty by making the player ex
 * [Java](https://www.java.com/en/download/) - The programming language used
 * [Maven](https://maven.apache.org/) - Dependency Management
 ## Installing
-## Building
+### Building
 Since the project is based on Maven, it can be built using the following command
 ```
 mvn clean package
 ```
 The build project resides in the /target directory.
-## JAR
+### JAR
 To run the built project, use the following command in the /targed directory
 ```
 java -jar rpg-cli-1.0.jar
 ```
-## IDE
+### IDE
 Run the `main` method in the `com.rpg.app.App` class.
 
 ## Running the tests
