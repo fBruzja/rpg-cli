@@ -2,9 +2,10 @@
 A command line Role Playing Game. CLI-RPG
 ## Getting Started
 This is an assignment project in Java based on Maven with unit testing done in JUnit (Test coverage not nearly sufficient).
+
 The game takes place in the land of Marghor which is ruled by the evil magician Zoram. Do you have what it takes to defeat him?
 
-Player is represented by an 'X' and the evil sorceror by an 'Z'. Every other monster in the game has it's own marking.
+Player is represented by an 'X' and the evil sorcerer by a 'Z'. Every other monster in the game has it's own marking.
 A typical turn-based rpg with it's own exotic difficulty by making the player explore it's own mechanics.
 ### Prerequisites
 * [Java](https://www.java.com/en/download/) - The programming language used
