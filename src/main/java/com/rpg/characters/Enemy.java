@@ -3,7 +3,6 @@ package com.rpg.characters;
 import java.util.Random;
 
 public class Enemy {
-	/* Monsters have only stats */
 	int healthPoints;
 	int expAmountWhenKilled;
 	int attackPower;
