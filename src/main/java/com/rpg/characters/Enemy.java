@@ -18,8 +18,7 @@ public class Enemy {
 		this.attackPower = newAttackPower;
 		this.defense = newDefense;
 		this.name = newName;
-		
-		// generating random positions for the monster
+
 		Random rand = new Random();
 		this.xPosition = rand.nextInt((37 - 1) + 1) + 1;
 		this.yPosition = rand.nextInt((37 - 1) + 1) + 1;
