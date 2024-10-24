@@ -7,8 +7,12 @@ import com.rpg.map.Map;
 import com.rpg.characters.Enemy;
 import com.rpg.characters.Player;
 import com.rpg.datamanagement.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Game {
+
+	private static final Logger log = LoggerFactory.getLogger(Game.class);
 	public static Scanner userInput = new Scanner(System.in);
 	public static boolean zoramUndefeated = true;
 	
@@ -17,7 +21,7 @@ public class Game {
 		String name; 
 		char gender, profession, playerChoice = ' ';
 		Player mainCharacter = null;
-		SaveData data = null;
+		SaveData data;
 		gender = '0';
 		profession = '0';
 		Enemy enemies[] = new Enemy[14];
@@ -83,14 +87,14 @@ public class Game {
 				mainCharacter = new Player(name, (gender == 'm') ? "Male" : "Female", profession);
 			} break;
 			case '2': {
-				try {
-					data = (SaveData) ResourceManager.load("../saves/character.save");
-				} catch (Exception e) {
-					System.out.println("Could not load saved data: " + e.getMessage());
+				data = (SaveData) ResourceManager.load("../saves/character.save");
+				if(data == null) {
+					log.info("Character load failed");
+				} else {
+					mainCharacter = new Player(data.name, data.gender, (data.profession == "Male") ? 'm' : 'f');
+					ResourceManager.loadTheDataInThePlayer(data, mainCharacter);
+					System.out.println("\n\tGAME LOADED");
 				}
-				mainCharacter = new Player(data.name, data.gender, (data.profession == "Male") ? 'm' : 'f');
-				ResourceManager.loadTheDataInThePlayer(data, mainCharacter);
-				System.out.println("\n\tGAME LOADED");
 			} break;
 			case '3': {
 				System.out.println("Until next time!");

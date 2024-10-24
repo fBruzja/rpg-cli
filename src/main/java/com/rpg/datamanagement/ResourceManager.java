@@ -1,23 +1,38 @@
 package com.rpg.datamanagement;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import com.rpg.characters.Player;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceManager {
-	public static void save(Serializable data, String filename) throws Exception {
+
+	private ResourceManager() {}
+
+	private static final Logger log = LoggerFactory.getLogger(ResourceManager.class);
+
+	public static void save(Serializable data, String filename) {
 		try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(filename)))) {
 			oos.writeObject(data);
+		} catch (IOException exception) {
+			log.info(exception.getMessage());
 		}
 	}
 	
-	public static Object load(String filename) throws Exception {
+	public static Object load(String filename) {
 		try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(Paths.get(filename)))) {
 			return ois.readObject();
+		} catch (IOException exception) {
+			log.info("Could not load save file: {}", filename);
+		} catch (ClassNotFoundException exception) {
+			log.error(exception.getMessage());
 		}
+		return null;
 	}
 	
 	public static SaveData createSaveData(Player pl) {
