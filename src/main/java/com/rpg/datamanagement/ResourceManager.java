@@ -1,5 +1,6 @@
 package com.rpg.datamanagement;
 
+import com.rpg.utils.GameLogger;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.ObjectOutputStream;
@@ -28,7 +29,7 @@ public class ResourceManager {
 		try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(Paths.get(filename)))) {
 			return ois.readObject();
 		} catch (IOException exception) {
-			log.info("Could not load save file: {}", filename);
+			GameLogger.print("Could not load save file: " + filename);
 		} catch (ClassNotFoundException exception) {
 			log.error(exception.getMessage());
 		}
