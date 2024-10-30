@@ -3,7 +3,7 @@ package com.rpg.app;
 import com.rpg.characters.Enemy;
 import com.rpg.characters.Player;
 import com.rpg.datamanagement.ResourceManager;
-import com.rpg.datamanagement.SaveData;
+import com.rpg.datamanagement.data.SaveData;
 import com.rpg.map.Map;
 import com.rpg.utils.GameLogger;
 import java.util.Scanner;
@@ -102,7 +102,15 @@ public class Game {
                 if (data == null) {
                     log.info("Character load failed");
                 } else {
-                    mainCharacter = new Player(data.name, data.gender, (data.profession == "Male") ? 'm' : 'f');
+                    var playerInfo = data.getPlayerInformation();
+                    mainCharacter = new Player(
+                            playerInfo.name(),
+                            playerInfo.gender(),
+                            (
+                                    playerInfo.profession()
+                                            .equals("Male")
+                            ) ? 'm' : 'f' // TODO: figure out this mess
+                    );
                     ResourceManager.loadTheDataInThePlayer(data, mainCharacter);
                     System.out.println("\n\tGAME LOADED");
                 }
@@ -140,7 +148,7 @@ public class Game {
 
         Map map = new Map();
         map.generateMapLayout();
-        map.bringPlayerIntoMap(mainCharacter.getxPosition(), mainCharacter.getyPosition());
+        map.bringPlayerIntoMap(mainCharacter.getXPosition(), mainCharacter.getYPosition());
         for (i = 0; i < 12; i++) {
             map.bringMonsterToMap(enemies[i].getxPosition(), enemies[i].getyPosition(), enemies[i].getName());
         }
@@ -222,16 +230,16 @@ public class Game {
     void intro() {
         GameLogger.print("""
 
-        Welcome traveler to this mysterious trial you will be facing!
-        This is the magical land of Marghor, ruled by the tyrannical sorcerer Zoram.
-        We bid you welcome!
-        
-        Since you accept the challenge to defeat Zoram (which main character doesn't?)
-        You must choose...
-            1) New Game
-            2) Continue
-            3) Exit
-        """);
+                Welcome traveler to this mysterious trial you will be facing!
+                This is the magical land of Marghor, ruled by the tyrannical sorcerer Zoram.
+                We bid you welcome!
+                        
+                Since you accept the challenge to defeat Zoram (which main character doesn't?)
+                You must choose...
+                    1) New Game
+                    2) Continue
+                    3) Exit
+                """);
     }
 
     void menu() {
@@ -271,21 +279,22 @@ public class Game {
     void manageMovement(Player p, Map map, Enemy[] enemies, char movement) {
         switch (movement) {
             case 'w': {
-                if (map.checkIfOutOfBoundaries(p.getxPosition() - 1, p.getyPosition())) {
-                    char encounter = map.checkForEncounter(p.getxPosition() - 1, p.getyPosition());
-                    fightOrFindNothing(encounter, p, enemies, p.getxPosition() - 1, p.getyPosition());
-                    map.updateMap(p.getxPosition() - 1, p.getyPosition(), movement);
+                if (map.checkIfOutOfBoundaries(p.getXPosition() - 1, p.getYPosition())) {
+                    char encounter = map.checkForEncounter(p.getXPosition() - 1, p.getYPosition());
+                    fightOrFindNothing(encounter, p, enemies, p.getXPosition() - 1, p.getYPosition());
+                    map.updateMap(p.getXPosition() - 1, p.getYPosition(), movement);
                     p.move(movement);
                 } else {
+                    // TODO: maybe not needed. Just let them hit a wall.
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
                 }
             }
             break;
             case 'a': {
-                if (map.checkIfOutOfBoundaries(p.getxPosition(), p.getyPosition() - 1)) {
-                    char encounter = map.checkForEncounter(p.getxPosition(), p.getyPosition() - 1);
-                    fightOrFindNothing(encounter, p, enemies, p.getxPosition(), p.getyPosition() - 1);
-                    map.updateMap(p.getxPosition(), p.getyPosition() - 1, movement);
+                if (map.checkIfOutOfBoundaries(p.getXPosition(), p.getYPosition() - 1)) {
+                    char encounter = map.checkForEncounter(p.getXPosition(), p.getYPosition() - 1);
+                    fightOrFindNothing(encounter, p, enemies, p.getXPosition(), p.getYPosition() - 1);
+                    map.updateMap(p.getXPosition(), p.getYPosition() - 1, movement);
                     p.move(movement);
                 } else {
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
@@ -293,10 +302,10 @@ public class Game {
             }
             break;
             case 'd': {
-                if (map.checkIfOutOfBoundaries(p.getxPosition(), p.getyPosition() + 1)) {
-                    char encounter = map.checkForEncounter(p.getxPosition(), p.getyPosition() + 1);
-                    fightOrFindNothing(encounter, p, enemies, p.getxPosition(), p.getyPosition() + 1);
-                    map.updateMap(p.getxPosition(), p.getyPosition() + 1, movement);
+                if (map.checkIfOutOfBoundaries(p.getXPosition(), p.getYPosition() + 1)) {
+                    char encounter = map.checkForEncounter(p.getXPosition(), p.getYPosition() + 1);
+                    fightOrFindNothing(encounter, p, enemies, p.getXPosition(), p.getYPosition() + 1);
+                    map.updateMap(p.getXPosition(), p.getYPosition() + 1, movement);
                     p.move(movement);
                 } else {
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
@@ -304,10 +313,10 @@ public class Game {
             }
             break;
             case 's': {
-                if (map.checkIfOutOfBoundaries(p.getxPosition() + 1, p.getyPosition())) {
-                    char encounter = map.checkForEncounter(p.getxPosition() + 1, p.getyPosition());
-                    fightOrFindNothing(encounter, p, enemies, p.getxPosition() + 1, p.getyPosition());
-                    map.updateMap(p.getxPosition() + 1, p.getyPosition(), movement);
+                if (map.checkIfOutOfBoundaries(p.getXPosition() + 1, p.getYPosition())) {
+                    char encounter = map.checkForEncounter(p.getXPosition() + 1, p.getYPosition());
+                    fightOrFindNothing(encounter, p, enemies, p.getXPosition() + 1, p.getYPosition());
+                    map.updateMap(p.getXPosition() + 1, p.getYPosition(), movement);
                     p.move(movement);
                 } else {
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
