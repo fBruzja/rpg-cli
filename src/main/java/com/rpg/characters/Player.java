@@ -1,13 +1,17 @@
 package com.rpg.characters;
 
 import java.util.Scanner;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Player {
 	/* All stats are based upon the basic attributes */
 
 	// Player information
-	String name = "";
-	String gender = "";
+	String name;
+	String gender;
 	String profession = "";
 	int level = 1;
 	int xPosition = 38;
@@ -54,16 +58,16 @@ public class Player {
 	public void move(char movement) {
 		switch (movement) {
 			case 'w':
-				this.setxPosition(this.getxPosition() - 1);
+				this.setXPosition(this.getXPosition() - 1);
 				break;
 			case 'a':
-				this.setyPosition(this.getyPosition() - 1);
+				this.setYPosition(this.getYPosition() - 1);
 				break;
 			case 'd':
-				this.setyPosition(this.getyPosition() + 1);
+				this.setYPosition(this.getYPosition() + 1);
 				break;
 			case 's':
-				this.setxPosition(this.getxPosition() + 1);
+				this.setXPosition(this.getXPosition() + 1);
 				break;
 			default:
 				System.out.println("Please enter one of the directions!");
@@ -181,8 +185,8 @@ public class Player {
 	}
 	
 	public void fourthAbilityUsage(Player p, Enemy e) {
-		if(p.getProfession() == "Warrior" || p.getProfession() == "Amazon") {
-			if(p.getWarriorUsedLastSkill()) {
+		if(p.getProfession().equals("Warrior") || p.getProfession().equals("Amazon")) {
+			if(p.isWarriorUsedLastSkill()) {
 				System.out.println("You used " + abilities[3] + "! Your defense is increased by 5 permanently.");
 				p.setWarriorUsedLastSkill(false);
 			} else
@@ -209,7 +213,7 @@ public class Player {
 				return 0;
 			return ((p.getAttackPoints() + bonusFactor) - (e.getDefense() / 2));
 		} else {
-			if((p.getAttackPoints() * bonusFactor) - (e.getDefense() / 2) < 0) 
+			if((p.getAttackPoints() * bonusFactor) - (e.getDefense() / 2) < 0)
 				return 0;
 			return ((p.getAttackPoints() * bonusFactor) - (e.getDefense() / 2));
 		}
@@ -318,138 +322,6 @@ public class Player {
 				p.levelUp(p);
 			}
 		}
-	}
-
-	public String[] getAbilities() {
-		return abilities;
-	}
-	
-	public int getxPosition() {
-		return xPosition;
-	}
-
-	public void setxPosition(int xPosition) {
-		this.xPosition = xPosition;
-	}
-
-	public int getyPosition() {
-		return yPosition;
-	}
-
-	public void setyPosition(int yPosition) {
-		this.yPosition = yPosition;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
-
-	public void setProfession(String profession) {
-		this.profession = profession;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
-
-	public void setStrength(int strength) {
-		this.strength = strength;
-	}
-
-	public void setAgility(int agility) {
-		this.agility = agility;
-	}
-
-	public void setMagicka(int magicka) {
-		this.magicka = magicka;
-	}
-
-	public void setHealthPoints(int healthPoints) {
-		this.healthPoints = healthPoints;
-	}
-
-	public void setManaPoints(int manaPoints) {
-		this.manaPoints = manaPoints;
-	}
-
-	public void setAttackPoints(int attackPoints) {
-		this.attackPoints = attackPoints;
-	}
-
-	public void setDefense(int defense) {
-		this.defense = defense;
-	}
-
-	public void setAbilities(String[] abilities) {
-		this.abilities = abilities;
-	}
-	
-	public void setWarriorUsedLastSkill(boolean warriorUsedLastSkill) {
-		this.warriorUsedLastSkill = warriorUsedLastSkill;
-	}
-	
-	public String getName() {
-		return name;
-	}
-
-	public String getProfession() {
-		return profession;
-	}
-
-	public String getGender() {
-		return gender;
-	}
-	
-	public int getLevel() {
-		return level;
-	}
-
-	public int getStrength() {
-		return strength;
-	}
-
-	public int getAgility() {
-		return agility;
-	}
-
-	public int getMagicka() {
-		return magicka;
-	}
-
-	public int getHealthPoints() {
-		return healthPoints;
-	}
-
-	public int getManaPoints() {
-		return manaPoints;
-	}
-
-	public int getAttackPoints() {
-		return attackPoints;
-	}
-
-	public int getDefense() {
-		return defense;
-	}
-	
-	public boolean getWarriorUsedLastSkill() {
-		return warriorUsedLastSkill;
-	}
-	
-	public static int getMaxLevel() {
-		return MAX_LEVEL;
-	}
-	
-	public int getExp() {
-		return exp;
-	}
-
-	public void setExp(int exp) {
-		this.exp = exp;
 	}
 	
 	public void modifyAbility(int index, String ability) {

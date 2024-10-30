@@ -1,10 +1,11 @@
 package com.rpg.datamanagement;
 
+import java.io.Serial;
 import java.io.Serializable;
-
 
 public class SaveData implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public String name, gender, profession;
