@@ -12,7 +12,7 @@ import lombok.Setter;
 public class SaveData implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1L;
 
     private PersonalPlayerInformation playerInformation;
     private Stats stats;

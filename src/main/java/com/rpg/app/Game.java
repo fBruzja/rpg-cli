@@ -103,14 +103,10 @@ public class Game {
                     log.info("Character load failed");
                 } else {
                     var playerInfo = data.getPlayerInformation();
-                    mainCharacter = new Player(
-                            playerInfo.name(),
-                            playerInfo.gender(),
-                            (
-                                    playerInfo.profession()
-                                            .equals("Male")
-                            ) ? 'm' : 'f' // TODO: figure out this mess
-                    );
+                    mainCharacter = new Player(playerInfo.name(), playerInfo.gender(), (
+                            playerInfo.profession()
+                                    .equals("Male")
+                    ) ? 'm' : 'f'); // TODO: figure out this mess
                     ResourceManager.loadTheDataInThePlayer(data, mainCharacter);
                     System.out.println("\n\tGAME LOADED");
                 }
@@ -252,7 +248,8 @@ public class Game {
         System.out.println("------------GENERAL INFORMATION----------");
         System.out.print("\tName: " + p.getName());
         System.out.print("\n\tLevel: " + p.getLevel());
-        System.out.print("\n\tProfession: " + p.getProfession());
+        System.out.print("\n\tProfession: " + p.getProfession()
+                .getDisplayName());
         System.out.print("\n\tGender: " + p.getGender());
         System.out.println("\n--------------BASIC ATTRIBUTES----------");
         System.out.print("\tStrength: " + p.getStrength());
