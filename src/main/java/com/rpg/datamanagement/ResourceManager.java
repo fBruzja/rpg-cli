@@ -42,7 +42,7 @@ public class ResourceManager {
     }
 
     public static SaveData createSaveData(Player pl) {
-        var playerInformation = new PersonalPlayerInformation(pl.getName(), pl.getGender(), pl.getProfession());
+        var playerInformation = new PersonalPlayerInformation(pl.getName(), pl.getProfession());
         var position = new Position(pl.getXPosition(), pl.getYPosition());
 
         return SaveData.builder()

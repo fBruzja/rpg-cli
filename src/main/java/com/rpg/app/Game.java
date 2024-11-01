@@ -19,10 +19,9 @@ public class Game {
     void startGame() {
 
         String name;
-        char gender, profession, playerChoice = ' ';
+        char profession, playerChoice = ' ';
         Player mainCharacter = null;
         SaveData data;
-        gender = '0';
         profession = '0';
         Enemy enemies[] = new Enemy[14];
         int i;
@@ -46,13 +45,6 @@ public class Game {
                 System.out.print("\nYou are fully cloaked and we want to know if you are a man or a woman?"
                         + "\n'm' for Male\n'f' for Female\n");
                 userInput.reset();
-                while (gender != 'm' && gender != 'f') {
-                    gender = userInput.next()
-                            .charAt(0);
-                    if (gender != 'm' && gender != 'f') {
-                        System.out.println("Please enter 'm' or 'f'");
-                    }
-                }
 
                 System.out.print(
                         "\n\nAnd lastly what do you consider yourself?\nA fighter, an agile dependant or a magical user?");
@@ -66,35 +58,21 @@ public class Game {
                     }
                 }
 
-                if (gender == 'm') {
-                    switch (profession) {
-                        case 'w':
-                            System.out.print(
-                                    "\nAh so you are a warrior! You will find the fights you desire here then.\n");
-                            break;
-                        case 't':
-                            System.out.print("\nA thief i see... May the shadows hide you.\n");
-                            break;
-                        case 'm':
-                            System.out.print(
-                                    "\nA pupil of the arcane arts... You will find Zoram rather intriguing then!\n");
-                            break;
-                    }
-                } else {
-                    switch (profession) {
-                        case 'w':
-                            System.out.print(
-                                    "\nAh so you are an amazon! You will find the challenges you desire here then.\n");
-                            break;
-                        case 't':
-                            System.out.print("\nA rogue i see... May your blade be swift as you are!\n");
-                            break;
-                        case 'm':
-                            System.out.print("\nAh, a sorceress... I expect quite the match for Zoram!\n");
-                            break;
-                    }
+                switch (profession) {
+                    case 'w':
+                        System.out.print(
+                                "\nAh so you are a warrior! You will find the fights you desire here then.\n");
+                        break;
+                    case 't':
+                        System.out.print("\nA thief i see... May the shadows hide you.\n");
+                        break;
+                    case 'm':
+                        System.out.print(
+                                "\nA pupil of the arcane arts... You will find Zoram rather intriguing then!\n");
+                        break;
                 }
-                mainCharacter = new Player(name, (gender == 'm') ? "Male" : "Female", profession);
+
+                mainCharacter = new Player(name, profession);
             }
             break;
             case '2': {
@@ -103,10 +81,7 @@ public class Game {
                     log.info("Character load failed");
                 } else {
                     var playerInfo = data.getPlayerInformation();
-                    mainCharacter = new Player(playerInfo.name(), playerInfo.gender(), (
-                            playerInfo.profession()
-                                    .equals("Male")
-                    ) ? 'm' : 'f'); // TODO: figure out this mess
+                    mainCharacter = new Player(playerInfo.name(), profession);
                     ResourceManager.loadTheDataInThePlayer(data, mainCharacter);
                     System.out.println("\n\tGAME LOADED");
                 }
@@ -250,7 +225,6 @@ public class Game {
         System.out.print("\n\tLevel: " + p.getLevel());
         System.out.print("\n\tProfession: " + p.getProfession()
                 .getDisplayName());
-        System.out.print("\n\tGender: " + p.getGender());
         System.out.println("\n--------------BASIC ATTRIBUTES----------");
         System.out.print("\tStrength: " + p.getStrength());
         System.out.print("\n\tAgility: " + p.getAgility());

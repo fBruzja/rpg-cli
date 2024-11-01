@@ -12,7 +12,6 @@ public class Player {
 
     // Player information
     String name;
-    String gender;
     Profession profession;
     int level = 1;
     int xPosition = 38;
@@ -33,9 +32,8 @@ public class Player {
     String[] abilities = new String[4];
     boolean warriorUsedLastSkill = false;
 
-    public Player(String newName, String newGender, char newProfession) {
+    public Player(String newName, char newProfession) {
         this.name = newName;
-        this.gender = newGender;
 
         switch (newProfession) {
             case 'w': {
