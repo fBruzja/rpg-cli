@@ -1,6 +1,4 @@
-package com.rpg.datamanagement.data;
-
-import com.rpg.characters.data.Profession;
+package com.rpg.characters.data;
 
 public record PersonalPlayerInformation(
         String name, Profession profession

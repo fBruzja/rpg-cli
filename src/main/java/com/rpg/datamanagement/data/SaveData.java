@@ -1,5 +1,8 @@
 package com.rpg.datamanagement.data;
 
+import com.rpg.characters.data.PersonalPlayerInformation;
+import com.rpg.characters.data.Position;
+import com.rpg.characters.data.Stats;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.rpg.datamanagement.data;
+package com.rpg.characters.data;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 public class Stats {
     private int strength;
     private int agility;
-    private int magicka;
+    private int intelligence;
     private int healthPoints;
     private int manaPoints;
     private int attackPoints;

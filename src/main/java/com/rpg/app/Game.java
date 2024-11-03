@@ -119,7 +119,8 @@ public class Game {
 
         Map map = new Map();
         map.generateMapLayout();
-        map.bringPlayerIntoMap(mainCharacter.getXPosition(), mainCharacter.getYPosition());
+        assert mainCharacter != null; // TODO: deal with it differently than just an assertion
+        map.bringPlayerIntoMap(mainCharacter.getPlayerPosition().getX(), mainCharacter.getPlayerPosition().getY());
         for (i = 0; i < 12; i++) {
             map.bringMonsterToMap(enemies[i].getxPosition(), enemies[i].getyPosition(), enemies[i].getName());
         }
@@ -220,21 +221,24 @@ public class Game {
     }
 
     void showStats(Player p) {
+        var playerStats = p.getPlayerStats();
+        var playerInformation = p.getPlayerInformation();
+
         System.out.println("------------GENERAL INFORMATION----------");
-        System.out.print("\tName: " + p.getName());
+        System.out.print("\tName: " + playerInformation.name());
         System.out.print("\n\tLevel: " + p.getLevel());
-        System.out.print("\n\tProfession: " + p.getProfession()
+        System.out.print("\n\tProfession: " + playerInformation.profession()
                 .getDisplayName());
         System.out.println("\n--------------BASIC ATTRIBUTES----------");
-        System.out.print("\tStrength: " + p.getStrength());
-        System.out.print("\n\tAgility: " + p.getAgility());
-        System.out.print("\n\tMagicka: " + p.getMagicka());
+        System.out.print("\tStrength: " + playerStats.getStrength());
+        System.out.print("\n\tAgility: " + playerStats.getAgility());
+        System.out.print("\n\tIntelligence: " + playerStats.getIntelligence());
         System.out.println("\n-------------------STATS----------------");
-        System.out.print("\tHP: " + p.getHealthPoints());
-        System.out.print("\n\tMP: " + p.getManaPoints());
-        System.out.print("\n\tAttack: " + p.getAttackPoints());
-        System.out.print("\n\tDefense: " + p.getDefense());
-        System.out.println("\n\tEXP: " + p.getExp());
+        System.out.print("\tHP: " + playerStats.getHealthPoints());
+        System.out.print("\n\tMP: " + playerStats.getManaPoints());
+        System.out.print("\n\tAttack: " + playerStats.getAttackPoints());
+        System.out.print("\n\tDefense: " + playerStats.getDefense());
+        System.out.println("\n\tEXP: " + playerStats.getExp());
     }
 
     public Enemy checkWhichEnemy(int x, int y, Enemy[] enemies) {
@@ -248,12 +252,15 @@ public class Game {
 
 
     void manageMovement(Player p, Map map, Enemy[] enemies, char movement) {
+        var xPosition = p.getPlayerPosition().getX();
+        var yPosition = p.getPlayerPosition().getY();
+        
         switch (movement) {
             case 'w': {
-                if (map.checkIfOutOfBoundaries(p.getXPosition() - 1, p.getYPosition())) {
-                    char encounter = map.checkForEncounter(p.getXPosition() - 1, p.getYPosition());
-                    fightOrFindNothing(encounter, p, enemies, p.getXPosition() - 1, p.getYPosition());
-                    map.updateMap(p.getXPosition() - 1, p.getYPosition(), movement);
+                if (map.checkIfOutOfBoundaries(xPosition - 1, yPosition)) {
+                    char encounter = map.checkForEncounter(xPosition - 1, yPosition);
+                    fightOrFindNothing(encounter, p, enemies, xPosition - 1, yPosition);
+                    map.updateMap(xPosition - 1, yPosition, movement);
                     p.move(movement);
                 } else {
                     // TODO: maybe not needed. Just let them hit a wall.
@@ -262,10 +269,10 @@ public class Game {
             }
             break;
             case 'a': {
-                if (map.checkIfOutOfBoundaries(p.getXPosition(), p.getYPosition() - 1)) {
-                    char encounter = map.checkForEncounter(p.getXPosition(), p.getYPosition() - 1);
-                    fightOrFindNothing(encounter, p, enemies, p.getXPosition(), p.getYPosition() - 1);
-                    map.updateMap(p.getXPosition(), p.getYPosition() - 1, movement);
+                if (map.checkIfOutOfBoundaries(xPosition, yPosition - 1)) {
+                    char encounter = map.checkForEncounter(xPosition, yPosition - 1);
+                    fightOrFindNothing(encounter, p, enemies, xPosition, yPosition - 1);
+                    map.updateMap(xPosition, yPosition - 1, movement);
                     p.move(movement);
                 } else {
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
@@ -273,10 +280,10 @@ public class Game {
             }
             break;
             case 'd': {
-                if (map.checkIfOutOfBoundaries(p.getXPosition(), p.getYPosition() + 1)) {
-                    char encounter = map.checkForEncounter(p.getXPosition(), p.getYPosition() + 1);
-                    fightOrFindNothing(encounter, p, enemies, p.getXPosition(), p.getYPosition() + 1);
-                    map.updateMap(p.getXPosition(), p.getYPosition() + 1, movement);
+                if (map.checkIfOutOfBoundaries(xPosition, yPosition + 1)) {
+                    char encounter = map.checkForEncounter(xPosition, yPosition + 1);
+                    fightOrFindNothing(encounter, p, enemies, xPosition, yPosition + 1);
+                    map.updateMap(xPosition, yPosition + 1, movement);
                     p.move(movement);
                 } else {
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
@@ -284,10 +291,10 @@ public class Game {
             }
             break;
             case 's': {
-                if (map.checkIfOutOfBoundaries(p.getXPosition() + 1, p.getYPosition())) {
-                    char encounter = map.checkForEncounter(p.getXPosition() + 1, p.getYPosition());
-                    fightOrFindNothing(encounter, p, enemies, p.getXPosition() + 1, p.getYPosition());
-                    map.updateMap(p.getXPosition() + 1, p.getYPosition(), movement);
+                if (map.checkIfOutOfBoundaries(xPosition + 1, yPosition)) {
+                    char encounter = map.checkForEncounter(xPosition + 1, yPosition);
+                    fightOrFindNothing(encounter, p, enemies, xPosition + 1, yPosition);
+                    map.updateMap(xPosition + 1, yPosition, movement);
                     p.move(movement);
                 } else {
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
@@ -321,10 +328,12 @@ public class Game {
             System.out.println("You have stumbled upon " + e.getName() + ", prepare yourself!");
         }
 
-        while (p.getHealthPoints() > 0 && e.getHealthPoints() > 0) {
+        var stats = p.getPlayerStats();
+
+        while (stats.getHealthPoints() > 0 && e.getHealthPoints() > 0) {
 
             // player's turn
-            System.out.println(p.getName() + " HP: " + p.getHealthPoints() + " | MP: " + p.getManaPoints());
+            System.out.println(p.getPlayerInformation().name() + " HP: " + stats.getHealthPoints() + " | MP: " + stats.getManaPoints());
             System.out.println(e.getName() + " HP: " + e.getHealthPoints());
             System.out.println("It is your turn");
             System.out.println("What will your move be?");
@@ -411,7 +420,7 @@ public class Game {
             }
             choice = ' ';
         }
-        if (p.getHealthPoints() <= 0) {
+        if (stats.getHealthPoints() <= 0) {
             System.out.println("Battle ended! You died...");
             System.out.println("GAME OVER");
             System.exit(0);
@@ -423,13 +432,13 @@ public class Game {
                     + " and won "
                     + e.getExpAmountWhenKilled()
                     + " EXP");
-            System.out.println("His reign ends here!\nCongratulations " + p.getName() + "!\nYou truly are remarkable!");
+            System.out.println("His reign ends here!\nCongratulations " + p.getPlayerInformation().name() + "!\nYou truly are remarkable!");
             Game.zoramUndefeated = false;
         } else {
             System.out.println("You defeated " + e.getName() + " and won " + e.getExpAmountWhenKilled() + " EXP");
         }
-        p.setHealthPoints(p.getHealthPoints() + 10);
-        p.setManaPoints(p.getManaPoints() + 10);
+        stats.setHealthPoints(stats.getHealthPoints() + 10);
+        stats.setManaPoints(stats.getManaPoints() + 10);
         p.addExpAndCheckIfLeveledUp(p, e.getExpAmountWhenKilled());
         return true; // return true if fight is over and player is still alive
     }

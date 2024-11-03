@@ -1,10 +1,10 @@
 package com.rpg.datamanagement;
 
 import com.rpg.characters.Player;
-import com.rpg.datamanagement.data.PersonalPlayerInformation;
-import com.rpg.datamanagement.data.Position;
+import com.rpg.characters.data.PersonalPlayerInformation;
+import com.rpg.characters.data.Position;
+import com.rpg.characters.data.Stats;
 import com.rpg.datamanagement.data.SaveData;
-import com.rpg.datamanagement.data.Stats;
 import com.rpg.utils.GameLogger;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -42,8 +42,11 @@ public class ResourceManager {
     }
 
     public static SaveData createSaveData(Player pl) {
-        var playerInformation = new PersonalPlayerInformation(pl.getName(), pl.getProfession());
-        var position = new Position(pl.getXPosition(), pl.getYPosition());
+        var playerInfo = pl.getPlayerInformation();
+        var playerPosition = pl.getPlayerPosition();
+
+        var playerInformation = new PersonalPlayerInformation(playerInfo.name(), playerInfo.profession());
+        var position = new Position(playerPosition.getX(), playerPosition.getY());
 
         return SaveData.builder()
                 .playerInformation(playerInformation)
@@ -55,31 +58,40 @@ public class ResourceManager {
     }
 
     private static Stats getStats(Player pl) {
+        var stats = pl.getPlayerStats();
+
         return Stats.builder()
-                .agility(pl.getAgility())
-                .strength(pl.getStrength())
-                .magicka(pl.getMagicka())
-                .attackPoints(pl.getAttackPoints())
-                .defense(pl.getDefense())
-                .exp(pl.getExp())
-                .manaPoints(pl.getManaPoints())
-                .healthPoints(pl.getHealthPoints())
+                .agility(stats.getAgility())
+                .strength(stats.getStrength())
+                .intelligence(stats.getIntelligence())
+                .attackPoints(stats.getAttackPoints())
+                .defense(stats.getDefense())
+                .exp(stats.getExp())
+                .manaPoints(stats.getManaPoints())
+                .healthPoints(stats.getHealthPoints())
                 .build();
     }
 
     public static void loadTheDataInThePlayer(SaveData s, Player p) {
+        var savedStats = s.getStats();
+
+        var stats = Stats.builder()
+                .agility(savedStats.getAgility())
+                .strength(savedStats.getStrength())
+                .intelligence(savedStats.getIntelligence())
+                .healthPoints(savedStats.getHealthPoints())
+                .defense(savedStats.getDefense())
+                .exp(savedStats.getExp())
+                .manaPoints(savedStats.getManaPoints())
+                .attackPoints(savedStats.getAttackPoints())
+                .build();
+
+        var position = new Position(s.getPosition().getX(), s.getPosition().getY());
+
+        p.setPlayerStats(stats);
         p.setAbilities(s.getAbilities());
-        p.setAgility(s.getStats().getAgility());
-        p.setAttackPoints(s.getStats().getAttackPoints());
-        p.setDefense(s.getStats().getDefense());
-        p.setHealthPoints(s.getStats().getHealthPoints());
-        p.setManaPoints(s.getStats().getManaPoints());
-        p.setStrength(s.getStats().getStrength());
-        p.setMagicka(s.getStats().getMagicka());
-        p.setXPosition(s.getPosition().x());
-        p.setYPosition(s.getPosition().y());
+        p.setPlayerPosition(position);
         p.setLevel(s.getLevel());
-        p.setExp(s.getStats().getExp());
     }
 
 }
