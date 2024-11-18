@@ -2,7 +2,11 @@ package com.rpg.characters;
 
 import com.rpg.characters.data.Stats;
 import java.util.Random;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Enemy {
 
     /* Monsters have only stats */ int healthPoints;
@@ -19,8 +23,7 @@ public class Enemy {
             int newExpAmountWhenKilled,
             int newAttackPower,
             int newDefense,
-            String newName,
-            boolean newIsBoss
+            String newName
     ) {
         this.healthPoints = newHealthPoints;
         this.expAmountWhenKilled = newExpAmountWhenKilled;
@@ -34,62 +37,19 @@ public class Enemy {
         this.yPosition = rand.nextInt((37 - 1) + 1) + 1;
     }
 
-    public int calculateDamageDoneByEnemyAndRemoveHealth(Player p, Enemy e, int specialFactor) {
-        Stats playerStats = p.getPlayerStats();
-        int defense = playerStats.getDefense();
-        if ((
-                e.getAttackPower() - (
-                        defense / 2
-                ) + specialFactor
-        ) < 0) {
-            return 0;
-        }
-        playerStats.setHealthPoints(playerStats.getHealthPoints() - (
-                e.getAttackPower() - (
-                        defense / 2
-                ) + specialFactor
-        ));
-        return (
-                e.getAttackPower() - (
-                        defense / 2
-                ) + specialFactor
-        );
+    public int calculateAndApplyDamage(Stats playerStats, int specialFactor) {
+        int playerDefense = playerStats.getDefense();
+        int damage = attackPower - (playerDefense / 2) + specialFactor;
+
+        damage = Math.max(0, damage);
+
+        playerStats.setHealthPoints(playerStats.getHealthPoints() - damage);
+
+        return damage;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getxPosition() {
-        return xPosition;
-    }
-
-    public int getyPosition() {
-        return yPosition;
-    }
-
-    public int getHealthPoints() {
-        return healthPoints;
-    }
-
-    public int getDefense() {
-        return defense;
-    }
-
-    public boolean getIsBoss() {
-        return isBoss;
-    }
-
-    public int getExpAmountWhenKilled() {
-        return expAmountWhenKilled;
-    }
-
-    public int getAttackPower() {
-        return attackPower;
-    }
-
-    public void setHealthPoints(int healthPoints) {
-        this.healthPoints = healthPoints;
+    public void reduceHealth(int damage) {
+        healthPoints = Math.max(0, healthPoints - damage); // Prevent negative health
     }
 
 }

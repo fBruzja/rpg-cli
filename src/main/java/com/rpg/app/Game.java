@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 public class Game {
 
     private static final Logger log = LoggerFactory.getLogger(Game.class);
+    public static final String ZORAM = "Zoram";
     public static Scanner userInput = new Scanner(System.in);
     public static boolean zoramUndefeated = true;
 
@@ -98,34 +99,34 @@ public class Game {
         // generate map and monsters
 
         for (i = 0; i < 3; i++) {
-            enemies[i] = new Enemy(20, 20, 5, 2, "Goblin", false);
+            enemies[i] = new Enemy(20, 20, 5, 2, "Goblin");
         }
         for (i = 3; i < 6; i++) {
-            enemies[i] = new Enemy(25, 20, 6, 3, "Skeleton", false);
+            enemies[i] = new Enemy(25, 20, 6, 3, "Skeleton");
         }
         for (i = 6; i < 8; i++) {
-            enemies[i] = new Enemy(23, 30, 5, 4, "Rat-Man", false);
+            enemies[i] = new Enemy(23, 30, 5, 4, "Rat-Man");
         }
         for (i = 8; i < 10; i++) {
-            enemies[i] = new Enemy(35, 40, 6, 5, "Salamander", false);
+            enemies[i] = new Enemy(35, 40, 6, 5, "Salamander");
         }
         for (i = 10; i < 12; i++) {
-            enemies[i] = new Enemy(30, 35, 6, 5, "Kobold", false);
+            enemies[i] = new Enemy(30, 35, 6, 5, "Kobold");
         }
 
         // creating the two bosses
-        enemies[12] = new Enemy(35, 100, 7, 5, "Spectre", true);
-        enemies[13] = new Enemy(70, 100, 10, 10, "Zoram", true);
+        enemies[12] = new Enemy(35, 100, 7, 5, "Spectre");
+        enemies[13] = new Enemy(70, 100, 10, 10, ZORAM);
 
         Map map = new Map();
         map.generateMapLayout();
         assert mainCharacter != null; // TODO: deal with it differently than just an assertion
         map.bringPlayerIntoMap(mainCharacter.getPlayerPosition().getX(), mainCharacter.getPlayerPosition().getY());
         for (i = 0; i < 12; i++) {
-            map.bringMonsterToMap(enemies[i].getxPosition(), enemies[i].getyPosition(), enemies[i].getName());
+            map.bringMonsterToMap(enemies[i].getXPosition(), enemies[i].getYPosition(), enemies[i].getName());
         }
-        map.bringMonsterToMap(enemies[12].getxPosition(), enemies[12].getyPosition(), enemies[12].getName());
-        map.bringMonsterToMap(enemies[13].getxPosition(), enemies[13].getyPosition(), enemies[13].getName());
+        map.bringMonsterToMap(enemies[12].getXPosition(), enemies[12].getYPosition(), enemies[12].getName());
+        map.bringMonsterToMap(enemies[13].getXPosition(), enemies[13].getYPosition(), enemies[13].getName());
         // the game begins
         while (Game.zoramUndefeated) {
             map.printMap();
@@ -205,7 +206,7 @@ public class Game {
                 Welcome traveler to this mysterious trial you will be facing!
                 This is the magical land of Marghor, ruled by the tyrannical sorcerer Zoram.
                 We bid you welcome!
-                        
+                
                 Since you accept the challenge to defeat Zoram (which main character doesn't?)
                 You must choose...
                     1) New Game
@@ -242,9 +243,9 @@ public class Game {
     }
 
     public Enemy checkWhichEnemy(int x, int y, Enemy[] enemies) {
-        for (int i = 0; i < enemies.length; i++) {
-            if (x == enemies[i].getxPosition() && y == enemies[i].getyPosition()) {
-                return enemies[i];
+        for (Enemy enemy : enemies) {
+            if (x == enemy.getXPosition() && y == enemy.getYPosition()) {
+                return enemy;
             }
         }
         return null;
@@ -322,7 +323,7 @@ public class Game {
         int turns = 0;
 
         if (e.getName()
-                .equals("Zoram")) {
+                .equals(ZORAM)) {
             System.out.println("You face the mighty and evil Zoram.\nPrepare yourself!");
         } else {
             System.out.println("You have stumbled upon " + e.getName() + ", prepare yourself!");
@@ -376,29 +377,29 @@ public class Game {
             // enemy's turn
             System.out.println("It is " + e.getName() + "'s turn!");
             if (!disabledByPlayer) {
-                if (e.getIsBoss()) {
+                if (e.isBoss()) {
                     switch (e.getName()) {
                         case "Spectre": {
                             if (turns == 0) {
                                 System.out.println("Spectre throws demonic flames from his sickle\nAnd does: "
-                                        + e.calculateDamageDoneByEnemyAndRemoveHealth(p, e, 15)
+                                        + e.calculateAndApplyDamage(p.getPlayerStats(), 15)
                                         + " damage.");
                                 turns = 5;
                             } else {
                                 System.out.println("Spectre attacks you and does: "
-                                        + e.calculateDamageDoneByEnemyAndRemoveHealth(p, e, 0)
+                                        + e.calculateAndApplyDamage(p.getPlayerStats(), 0)
                                         + " damage.");
                             }
                         }
                         break;
-                        case "Zoram": {
+                        case ZORAM: {
                             if (turns == 0) {
                                 System.out.println(
                                         "The sorceror Zoram uses his healing abilities. His health increases by 50.");
                                 e.setHealthPoints(e.getHealthPoints() + 50);
                             } else {
                                 System.out.println("The sorceror Zoram attacks you and does: "
-                                        + e.calculateDamageDoneByEnemyAndRemoveHealth(p, e, 0)
+                                        + e.calculateAndApplyDamage(p.getPlayerStats(), 0)
                                         + " damage.");
                             }
                         }
@@ -407,7 +408,7 @@ public class Game {
                 } else {
                     System.out.println(e.getName()
                             + " attacks you and does "
-                            + e.calculateDamageDoneByEnemyAndRemoveHealth(p, e, 0)
+                            + e.calculateAndApplyDamage(p.getPlayerStats(), 0)
                             + " damage\n");
                 }
 
@@ -426,7 +427,7 @@ public class Game {
             System.exit(0);
         }
         if (e.getName()
-                .equals("Zoram")) {
+                .equals(ZORAM)) {
             System.out.println("You defeated the evil"
                     + e.getName()
                     + " and won "
@@ -439,7 +440,7 @@ public class Game {
         }
         stats.setHealthPoints(stats.getHealthPoints() + 10);
         stats.setManaPoints(stats.getManaPoints() + 10);
-        p.addExpAndCheckIfLeveledUp(p, e.getExpAmountWhenKilled());
+        p.getBattleRewards(e.getExpAmountWhenKilled());
         return true; // return true if fight is over and player is still alive
     }
 

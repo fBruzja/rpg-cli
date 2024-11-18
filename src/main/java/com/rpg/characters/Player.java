@@ -47,7 +47,6 @@ public class Player {
         Profession selectedProfession = Profession.WARRIOR;
         switch (newProfession) {
             case 'w': {
-                selectedProfession = Profession.WARRIOR;
                 abilities[0] = "Power Attack";
             }
             break;
@@ -91,16 +90,16 @@ public class Player {
 
     public boolean physicalAtatck(Player p, Enemy e, boolean poison) {
         if (poison) {
-            System.out.println("You attack with your poisoned blade! You made: " + p.calculateDamageDoneByPlayer(p,
-                    e,
-                    1,
-                    true
-            ) + " damage!");
-            p.consumeManaAndRemoveEnemyHealth(p, e, p.calculateDamageDoneByPlayer(p, e, 1, true), 0);
+            System.out.println("You attack with your poisoned blade! You made: "
+                    + p.calculateDamageDoneByPlayer(e.getDefense(), 1, true)
+                    + " damage!");
+            p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 1, true), 0);
             poison = false;
         } else {
-            System.out.println("You attack! You made: " + p.calculateDamageDoneByPlayer(p, e, 0, true) + " damage!");
-            p.consumeManaAndRemoveEnemyHealth(p, e, p.calculateDamageDoneByPlayer(p, e, 0, true), 0);
+            System.out.println("You attack! You made: "
+                    + p.calculateDamageDoneByPlayer(e.getDefense(), 0, true)
+                    + " damage!");
+            p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 0, true), 0);
         }
         return poison;
     }
@@ -144,12 +143,12 @@ public class Player {
 
         if (playerProfession == Profession.WARRIOR) {
             if (manaPoints >= 20) {
-                System.out.println("You use " + abilities[0] + "! You made: " + p.calculateDamageDoneByPlayer(p,
-                        e,
-                        2,
-                        false
-                ) + " damage!");
-                p.consumeManaAndRemoveEnemyHealth(p, e, p.calculateDamageDoneByPlayer(p, e, 2, false), 20);
+                System.out.println("You use "
+                        + abilities[0]
+                        + "! You made: "
+                        + p.calculateDamageDoneByPlayer(e.getDefense(), 2, false)
+                        + " damage!");
+                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 2, false), 20);
             } else {
                 System.out.println("You do not have enough mana. You need 20 for this skill.");
             }
@@ -163,12 +162,12 @@ public class Player {
             }
         } else if (playerProfession == Profession.MAGE) {
             if (manaPoints >= 15) {
-                System.out.println("You use! " + abilities[0] + " You made " + p.calculateDamageDoneByPlayer(p,
-                        e,
-                        3,
-                        true
-                ) + " damage.");
-                p.consumeManaAndRemoveEnemyHealth(p, e, p.calculateDamageDoneByPlayer(p, e, 3, true), 15);
+                System.out.println("You use! "
+                        + abilities[0]
+                        + " You made "
+                        + p.calculateDamageDoneByPlayer(e.getDefense(), 3, true)
+                        + " damage.");
+                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 3, true), 15);
             } else {
                 System.out.println("You do not have enough mana. You need 15 for this skill.");
             }
@@ -190,23 +189,23 @@ public class Player {
             }
         } else if (playerProfession == Profession.THIEF) {
             if (manaPoints >= 50) {
-                System.out.println("You use " + abilities[1] + "! You made " + p.calculateDamageDoneByPlayer(p,
-                        e,
-                        3,
-                        false
-                ) + " damage");
-                p.consumeManaAndRemoveEnemyHealth(p, e, p.calculateDamageDoneByPlayer(p, e, 3, false), 50);
+                System.out.println("You use "
+                        + abilities[1]
+                        + "! You made "
+                        + p.calculateDamageDoneByPlayer(e.getDefense(), 3, false)
+                        + " damage");
+                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 3, false), 50);
             } else {
                 System.out.println("You do not have enough mana. You need 50 for this skill");
             }
         } else if (playerProfession == Profession.MAGE) {
             if (manaPoints >= 20) {
-                System.out.println("You use " + abilities[1] + "! You made " + p.calculateDamageDoneByPlayer(p,
-                        e,
-                        10,
-                        true
-                ) + " damage");
-                p.consumeManaAndRemoveEnemyHealth(p, e, p.calculateDamageDoneByPlayer(p, e, 10, true), 20);
+                System.out.println("You use "
+                        + abilities[1]
+                        + "! You made "
+                        + p.calculateDamageDoneByPlayer(e.getDefense(), 10, true)
+                        + " damage");
+                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 10, true), 20);
             } else {
                 System.out.println("You do not have enough mana. You need 20 for this skill.");
             }
@@ -226,11 +225,11 @@ public class Player {
                 System.out.println("You use "
                         + abilities[2]
                         + " to ignore the opponent's defense! \nYou made "
-                        + p.calculateDamageDoneByPlayer(p, e, (1 + e.getDefense() / 2), true)
+                        + p.calculateDamageDoneByPlayer(e.getDefense(), (1 + e.getDefense() / 2), true)
+                        // TODO: make calculations more readable
                         + " damage");
-                p.consumeManaAndRemoveEnemyHealth(p,
-                        e,
-                        p.calculateDamageDoneByPlayer(p, e, (1 + e.getDefense() / 2), true),
+                p.consumeManaAndRemoveEnemyHealth(e,
+                        p.calculateDamageDoneByPlayer(e.getDefense(), (1 + e.getDefense() / 2), true),
                         30
                 );
             } else {
@@ -263,146 +262,120 @@ public class Player {
         } else if (playerProfession == Profession.THIEF) {
             if (manaPoints >= 60) {
                 System.out.println("You used " + abilities[3] + ". Opponent is in near death.");
-                p.consumeManaAndRemoveEnemyHealth(p, e, e.getHealthPoints() - 5, 60);
+                p.consumeManaAndRemoveEnemyHealth(e, e.getHealthPoints() - 5, 60);
             } else {
                 System.out.println("You do not have enough mana. You need 60 mana for this skill.");
             }
         } else if (playerProfession == Profession.MAGE) {
             if (manaPoints >= 30) {
-                System.out.println("You use " + abilities[3] + "! You made " + p.calculateDamageDoneByPlayer(p,
-                        e,
-                        25,
-                        true
-                ) + " damage.");
-                p.consumeManaAndRemoveEnemyHealth(p, e, p.calculateDamageDoneByPlayer(p, e, 25, true), 30);
+                System.out.println("You use "
+                        + abilities[3]
+                        + "! You made "
+                        + p.calculateDamageDoneByPlayer(e.getDefense(), 25, true)
+                        + " damage.");
+                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 25, true), 30);
             } else {
                 System.out.println("You do not have enough mana. You need 30 for this skill.");
             }
         }
     }
 
-    public int calculateDamageDoneByPlayer(Player p, Enemy e, int bonusFactor, boolean bonusType) {
-        var attackPoints = playerStats.getAttackPoints();
-        var defense = e.getDefense();
+    public int calculateDamageDoneByPlayer(int enemyDefense, int bonusFactor, boolean bonusType) {
+        int adjustedAttack = bonusType
+                ? playerStats.getAttackPoints() + bonusFactor
+                : playerStats.getAttackPoints() * bonusFactor;
 
-        if (bonusType) {
-            // addition if true //TODO: what?
-            if ((attackPoints + bonusFactor) - (defense / 2) < 0) {
-                return 0;
-            }
-            return ((attackPoints + bonusFactor) - (defense / 2));
-        } else {
-            if ((attackPoints * bonusFactor) - (defense / 2) < 0) {
-                return 0;
-            }
-            return ((attackPoints * bonusFactor) - (defense / 2));
-        }
+        int damage = adjustedAttack - (enemyDefense / 2);
+        return Math.max(0, damage);
     }
 
-    public void consumeManaAndRemoveEnemyHealth(Player p, Enemy e, int damage, int manaToRemove) {
-        e.setHealthPoints(e.getHealthPoints() - damage);
+    public void consumeManaAndRemoveEnemyHealth(Enemy e, int damage, int manaToRemove) {
+        e.reduceHealth(damage);
         playerStats.setManaPoints(playerStats.getManaPoints() - manaToRemove);
     }
 
-    public void refreshSkills(Player p) {
+    public void refreshSkills() {
         playerStats.setAttackPoints(playerStats.getStrength() / 2);
         playerStats.setManaPoints(playerStats.getIntelligence() * 5);
         playerStats.setHealthPoints(playerStats.getStrength() * 5);
         playerStats.setDefense(playerStats.getAgility() / 2);
     }
 
-    public void levelUp(Player p) {
-        p.setLevel(p.getLevel() + 1);
+    public void levelUp() {
+        setLevel(getLevel() + 1);
         playerStats.setExp(0);
-        var playerProfession = p.getPlayerInformation()
-                .profession();
+        var playerProfession = playerInformation.profession();
 
-        if (playerProfession == Profession.WARRIOR) {
-            playerStats.setStrength(playerStats.getStrength() + 3);
-            playerStats.setAgility(playerStats.getAgility() + 1);
-            playerStats.setIntelligence(playerStats.getIntelligence() + 1);
+        playerStats.setStrength(playerStats.getStrength() + ((playerProfession == Profession.WARRIOR) ? 3 : 1));
+        playerStats.setAgility(playerStats.getAgility() + ((playerProfession == Profession.THIEF) ? 3 : 1));
+        playerStats.setIntelligence(playerStats.getIntelligence() + ((playerProfession == Profession.MAGE) ? 3 : 1));
 
-            refreshSkills(p);
-            addNewAbilities(p, 'w', p.getLevel());
-        } else if (playerProfession == Profession.THIEF) {
-            playerStats.setStrength(playerStats.getStrength() + 1);
-            playerStats.setAgility(playerStats.getAgility() + 3);
-            playerStats.setIntelligence(playerStats.getIntelligence() + 1);
-
-            refreshSkills(p);
-            addNewAbilities(p, 't', p.getLevel());
-        } else if (playerProfession == Profession.MAGE) {
-            playerStats.setStrength(playerStats.getStrength() + 1);
-            playerStats.setAgility(playerStats.getAgility() + 1);
-            playerStats.setIntelligence(playerStats.getIntelligence() + 3);
-
-            refreshSkills(p);
-            addNewAbilities(p, 'm', p.getLevel());
-        }
+        refreshSkills();
+        addNewAbilities(playerProfession, level);
     }
 
-    public void addNewAbilities(Player p, char profession, int level) {
+    public void addNewAbilities(Profession profession, int level) {
         switch (profession) {
-            case 'w': {
+            case Profession.WARRIOR: {
                 switch (level) {
                     case 3: {
                         System.out.println("You have learned a new ability: Healing Salve. \n It heals 50 HP");
-                        p.modifyAbility(1, "Healing Salve");
+                        modifyAbility(1, "Healing Salve");
                     }
                     break;
                     case 6: {
                         System.out.println(
                                 "You have learned a new ability: Charge\nOpponent gets disabled for the next turn!");
-                        p.modifyAbility(2, "Charge");
+                        modifyAbility(2, "Charge");
                     }
                     break;
                     case 10: {
                         System.out.println(
                                 "You have learned a new ability: Best Defense\nYour defense permanently increases by 5");
-                        p.modifyAbility(3, "Best Defense");
+                        modifyAbility(3, "Best Defense");
                     }
                     break;
                 }
             }
             break;
-            case 't': {
+            case Profession.THIEF: {
                 switch (level) {
                     case 3: {
                         System.out.println(
                                 "You have learned a new ability: Critical Strike. \n Your next attack does triple damage");
-                        p.modifyAbility(1, "Critical Strike");
+                        modifyAbility(1, "Critical Strike");
                     }
                     break;
                     case 6: {
                         System.out.println("You have learned a new ability: Wither\nOpponent's defense is ignored!");
-                        p.modifyAbility(2, "Wither");
+                        modifyAbility(2, "Wither");
                     }
                     break;
                     case 10: {
                         System.out.println(
                                 "You have learned a new ability: Coup De Grace\nYour attack brings your enemy near death!");
-                        p.modifyAbility(3, "Coup De Grace");
+                        modifyAbility(3, "Coup De Grace");
                     }
                     break;
                 }
             }
             break;
-            case 'm': {
+            case Profession.MAGE: {
                 switch (level) {
                     case 3: {
                         System.out.println("You have learned a new ability: Electrocute. \n Deals 10+ damage!");
-                        p.modifyAbility(1, "Electrocute");
+                        modifyAbility(1, "Electrocute");
                     }
                     break;
                     case 6: {
                         System.out.println(
                                 "You have learned a new ability: Degen Aura\nEnemy is disabled the next turn!");
-                        p.modifyAbility(2, "Degen Aura");
+                        modifyAbility(2, "Degen Aura");
                     }
                     break;
                     case 10: {
                         System.out.println("You have learned a new ability: Death Dome\nDeals 25+ damage");
-                        p.modifyAbility(3, "Best Defense");
+                        modifyAbility(3, "Best Defense");
                     }
                     break;
                 }
@@ -411,14 +384,14 @@ public class Player {
         }
     }
 
-    public void addExpAndCheckIfLeveledUp(Player p, int exp) {
+    public void getBattleRewards(int exp) {
         playerStats.setExp(playerStats.getExp() + exp);
         if (playerStats.getExp() >= 50) {
-            if (p.getLevel() == Player.MAX_LEVEL) {
+            if (level == Player.MAX_LEVEL) {
                 System.out.println("You have achieved the maximum level of your abilities!");
             } else {
                 System.out.println("You have leveled up! Your basic attributes have grown stronger!");
-                p.levelUp(p);
+                levelUp();
             }
         }
     }
