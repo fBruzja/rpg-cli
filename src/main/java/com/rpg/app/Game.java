@@ -24,6 +24,7 @@ public class Game {
         Player mainCharacter = null;
         SaveData data;
         profession = '0';
+        // TODO: make it a list!
         Enemy enemies[] = new Enemy[14];
         int i;
 
@@ -42,13 +43,10 @@ public class Game {
                 playerChoice = ' ';
                 System.out.print("\nTell us about yourself...\nWhat is your name traveler?\n");
                 name = userInput.next();
-                System.out.print("\nSuch an outlandish name dear " + name);
-                System.out.print("\nYou are fully cloaked and we want to know if you are a man or a woman?"
-                        + "\n'm' for Male\n'f' for Female\n");
                 userInput.reset();
 
                 System.out.print(
-                        "\n\nAnd lastly what do you consider yourself?\nA fighter, an agile dependant or a magical user?");
+                        "\n\nWhat do you consider yourself?\nA fighter, a rogue or a magical user?");
                 System.out.print("\n'w' for fighter\n't' for an agility dependant user\n'm' for a magic user\n");
                 userInput.reset();
                 while (profession != 'w' && profession != 't' && profession != 'm') {
@@ -119,9 +117,9 @@ public class Game {
         enemies[13] = new Enemy(70, 100, 10, 10, ZORAM);
 
         Map map = new Map();
-        map.generateMapLayout();
+
         assert mainCharacter != null; // TODO: deal with it differently than just an assertion
-        map.bringPlayerIntoMap(mainCharacter.getPlayerPosition().getX(), mainCharacter.getPlayerPosition().getY());
+        map.putPlayerInGameMap(mainCharacter.getPlayerPosition().getX(), mainCharacter.getPlayerPosition().getY());
         for (i = 0; i < 12; i++) {
             map.bringMonsterToMap(enemies[i].getXPosition(), enemies[i].getYPosition(), enemies[i].getName());
         }

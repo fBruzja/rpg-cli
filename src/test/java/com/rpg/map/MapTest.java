@@ -3,7 +3,6 @@ package com.rpg.map;
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
 
-import com.rpg.map.Map;
 import com.rpg.characters.Enemy;
 
 public class MapTest {
@@ -11,15 +10,15 @@ public class MapTest {
 	@Test
 	public void testBringPlayerToMap() {
 		Map map = new Map();
-		map.bringPlayerIntoMap(20, 20);
-		assertEquals('X', map.map[20][20]);
+		map.putPlayerInGameMap(20, 20);
+		assertEquals('X', map.gameMap[20][20]);
 	}
 	
 	@Test
 	public void testBringMonsterToMap() {
 		Map map = new Map();
 		map.bringMonsterToMap(20, 20, "Goblin");
-		assertEquals('G', map.map[20][20]);
+		assertEquals('G', map.gameMap[20][20]);
 	}
 	
 	@Test
@@ -39,8 +38,8 @@ public class MapTest {
 		Map map = new Map();
 		
 		map.updateMap(20, 20, 'w');
-		assertEquals(' ', map.map[21][20]);
-		assertEquals('X', map.map[20][20]);
+		assertEquals(' ', map.gameMap[21][20]);
+		assertEquals('X', map.gameMap[20][20]);
 	}
 	
 	@Test

@@ -1,99 +1,112 @@
 package com.rpg.map;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Map {
-	public char[][] map = new char[40][40];
-	int i,j;
-	
-	public void generateMapLayout() {
-		for(i=1; i < map[0].length - 1; i++) {
-			map[0][i] = '~';
-			map[39][i] = '_';
-			map[i][0] = '|';
-			map[i][39] = '|';
+	private char[][] gameMap = new char[40][40];
+
+	public Map() {
+		generateGameMapLayout();
+	}
+
+	public void generateGameMapLayout() {
+		fillUpGameMapWithSpace();
+		createGameMapBorders();
+	}
+
+	private void createGameMapBorders() {
+		for(int i = 1; i < gameMap[0].length - 1; i++) {
+			gameMap[0][i] = '~';
+			gameMap[39][i] = '_';
+			gameMap[i][0] = '|';
+			gameMap[i][39] = '|';
 		}
 	}
-	
-	public void bringPlayerIntoMap(int x, int y) {
-		map[x][y] = 'X';
+
+	private void fillUpGameMapWithSpace() {
+		for(int i = 0; i < gameMap[0].length - 1; i++) {
+			for(int j = 0; j < gameMap.length - 1; j++) {
+				gameMap[j][i] = ' ';
+			}
+		}
+	}
+
+	public void putPlayerInGameMap(int x, int y) {
+		gameMap[x][y] = 'X';
 	}
 	
 	public void bringMonsterToMap(int x, int y, String monster) {
 		switch(monster) {
 			case "Goblin" :
-				map[x][y] = 'G';
+				gameMap[x][y] = 'G';
 				break;
 			case "Skeleton" :
-				map[x][y] = 'S';
+				gameMap[x][y] = 'S';
 				break;
 			case "Rat-Man" :
-				map[x][y] = 'R';
+				gameMap[x][y] = 'R';
 				break;
 			case "Salamander" :
-				map[x][y] = 'D';
+				gameMap[x][y] = 'D';
 				break;
 			case "Kobold" :
-				map[x][y] = 'K';
+				gameMap[x][y] = 'K';
 				break;
 			case "Spectre" :
-				map[x][y] = 'T';
+				gameMap[x][y] = 'T';
 				break;
 			case "Zoram" :
-				map[x][y] = 'Z';
+				gameMap[x][y] = 'Z';
 				break;
 		}
 	}
 	
 	public void printMap() {
-		for(i=0; i<map[0].length; i++) {
-			for(j=0; j<map[i].length; j++) {
-				System.out.print(map[i][j]);
+		for(int i=0; i < gameMap[0].length; i++) {
+			for(int j=0; j < gameMap[i].length; j++) {
+				System.out.print(gameMap[i][j]);
 			}
 			System.out.println();
 		}
 	}
 	
 	public boolean checkIfOutOfBoundaries(int x, int y) {
-		if(map[x][y] == '|' || map[x][y] == '~' || map[x][y] == '_')
-			return false;
-		return true;
-	}
+        return gameMap[x][y] != '|' && gameMap[x][y] != '~' && gameMap[x][y] != '_';
+    }
 	
 	public void updateMap(int newX, int newY, char movement) {
 		switch(movement) {
 			case 'w': 
-				map[newX + 1][newY] = ' ';
+				gameMap[newX + 1][newY] = ' ';
 				break;
 			case 'a':
-				map[newX][newY + 1] = ' ';
+				gameMap[newX][newY + 1] = ' ';
 				break;
 			case 'd': 
-				map[newX][newY - 1] = ' ';
+				gameMap[newX][newY - 1] = ' ';
 				break;
 			case 's':
-				map[newX - 1][newY] = ' ';
+				gameMap[newX - 1][newY] = ' ';
 				break;
+			default: break;
 		}
-		map[newX][newY] = 'X';
+		gameMap[newX][newY] = 'X';
 	}
-	
-	public char checkForEncounter(int x, int y) {
-		switch(map[x][y]) {
-			case 'G':
-				return 'G';
-			case 'S':
-				return 'S';
-			case 'R':
-				return 'R';
-			case 'K':
-				return 'K';
-			case 'D':
-				return 'D';
-			case 'Z':
-				return 'Z';
-			case 'T':
-				return 'T';
-		}
 
-		return ' ';
+	// TODO: encounters feel wonky. Perhaps handle them differently
+	public char checkForEncounter(int x, int y) {
+        return switch (gameMap[x][y]) {
+            case 'G' -> 'G';
+            case 'S' -> 'S';
+            case 'R' -> 'R';
+            case 'K' -> 'K';
+            case 'D' -> 'D';
+            case 'Z' -> 'Z';
+            case 'T' -> 'T';
+            default -> ' ';
+        };
 	}
 }

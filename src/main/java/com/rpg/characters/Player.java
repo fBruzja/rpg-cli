@@ -45,23 +45,17 @@ public class Player {
         this.playerPosition = new Position(STARTING_X_COORDINATE, STARTING_Y_COORDINATE);
 
         Profession selectedProfession = Profession.WARRIOR;
-        switch (newProfession) {
-            case 'w': {
-                abilities[0] = "Power Attack";
-            }
-            break;
-            case 't': {
-                selectedProfession = Profession.THIEF;
-                abilities[0] = "Poisoned Dagger";
-            }
-            break;
-            case 'm': {
-                selectedProfession = Profession.MAGE;
-                abilities[0] = "Fireball";
-            }
-            break;
-            // TODO: add default "forsaken" class
+
+        if(newProfession == 'w' || newProfession == 'W') {
+            abilities[0] = "Power Attack";
+        } else if(newProfession == 't' || newProfession == 'T') {
+            selectedProfession = Profession.THIEF;
+            abilities[0] = "Poisoned Dagger";
+        } else if(newProfession == 'm' || newProfession == 'M') {
+            selectedProfession = Profession.MAGE;
+            abilities[0] = "Fireball";
         }
+
         this.playerInformation = new PersonalPlayerInformation(newName, selectedProfession);
 
         for (int i = 1; i < 4; i++) {
