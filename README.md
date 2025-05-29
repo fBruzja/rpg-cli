@@ -1,5 +1,5 @@
 # An adventure in the Land of Marghor
-A command line Role Playing Game. CLI-RPG
+A command line Role Playing Game. CLI-RPG [CURRENTLY WIP & NOT STABLE]
 ## Getting Started
 This is an assignment project in Java based on Maven with unit testing done in JUnit (Test coverage not nearly sufficient).
 
