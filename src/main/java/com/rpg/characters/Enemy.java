@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 public class Enemy {
 
-    /* Monsters have only stats */ int healthPoints;
+    /* Monsters have only stats */
+    int healthPoints;
     int expAmountWhenKilled;
     int attackPower;
     int defense;
@@ -17,12 +18,14 @@ public class Enemy {
     int yPosition;
     String name;
     boolean isBoss;
+    char icon;
 
     public Enemy(
             int newHealthPoints,
             int newExpAmountWhenKilled,
             int newAttackPower,
             int newDefense,
+            char newIcon,
             String newName
     ) {
         this.healthPoints = newHealthPoints;
@@ -30,6 +33,7 @@ public class Enemy {
         this.attackPower = newAttackPower;
         this.defense = newDefense;
         this.name = newName;
+        this.icon = newIcon;
 
         // generating random positions for the monster
         Random rand = new Random();

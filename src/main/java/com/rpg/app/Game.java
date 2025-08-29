@@ -5,7 +5,8 @@ import com.rpg.characters.Player;
 import com.rpg.datamanagement.ResourceManager;
 import com.rpg.datamanagement.data.SaveData;
 import com.rpg.map.Map;
-import com.rpg.utils.GameLogger;
+import com.rpg.userinterface.UserInterface;
+import java.util.List;
 import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,15 +25,13 @@ public class Game {
         Player mainCharacter = null;
         SaveData data;
         profession = '0';
-        // TODO: make it a list!
-        Enemy enemies[] = new Enemy[14];
-        int i;
 
-        intro();
+        List<Enemy> enemiesList = getEnemiesList();
+
+        UserInterface.showIntro();
 
         while (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
-            playerChoice = userInput.next()
-                    .charAt(0);
+            playerChoice = userInput.next().charAt(0);
             if (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
                 System.out.println("\nPlease enter '1', '2' or '3'");
             }
@@ -45,13 +44,11 @@ public class Game {
                 name = userInput.next();
                 userInput.reset();
 
-                System.out.print(
-                        "\n\nWhat do you consider yourself?\nA fighter, a rogue or a magical user?");
+                System.out.print("\n\nWhat do you consider yourself?\nA fighter, a rogue or a magical user?");
                 System.out.print("\n'w' for fighter\n't' for an agility dependant user\n'm' for a magic user\n");
                 userInput.reset();
                 while (profession != 'w' && profession != 't' && profession != 'm') {
-                    profession = userInput.next()
-                            .charAt(0);
+                    profession = userInput.next().charAt(0);
                     if (profession != 'w' && profession != 't' && profession != 'm') {
                         System.out.println("Please enter 'w', 't' or 'm'");
                     }
@@ -59,15 +56,13 @@ public class Game {
 
                 switch (profession) {
                     case 'w':
-                        System.out.print(
-                                "\nAh so you are a warrior! You will find the fights you desire here then.\n");
+                        System.out.print("\nAh so you are a warrior! You will find the fights you desire here then.\n");
                         break;
                     case 't':
                         System.out.print("\nA thief i see... May the shadows hide you.\n");
                         break;
                     case 'm':
-                        System.out.print(
-                                "\nA pupil of the arcane arts... You will find Zoram rather intriguing then!\n");
+                        System.out.print("\nA pupil of the arcane arts... You will find Zoram rather intriguing then!\n");
                         break;
                 }
 
@@ -94,41 +89,21 @@ public class Game {
         }
 
         userInput.reset();
-        // generate map and monsters
-
-        for (i = 0; i < 3; i++) {
-            enemies[i] = new Enemy(20, 20, 5, 2, "Goblin");
-        }
-        for (i = 3; i < 6; i++) {
-            enemies[i] = new Enemy(25, 20, 6, 3, "Skeleton");
-        }
-        for (i = 6; i < 8; i++) {
-            enemies[i] = new Enemy(23, 30, 5, 4, "Rat-Man");
-        }
-        for (i = 8; i < 10; i++) {
-            enemies[i] = new Enemy(35, 40, 6, 5, "Salamander");
-        }
-        for (i = 10; i < 12; i++) {
-            enemies[i] = new Enemy(30, 35, 6, 5, "Kobold");
-        }
-
-        // creating the two bosses
-        enemies[12] = new Enemy(35, 100, 7, 5, "Spectre");
-        enemies[13] = new Enemy(70, 100, 10, 10, ZORAM);
+        // generate map
 
         Map map = new Map();
 
         assert mainCharacter != null; // TODO: deal with it differently than just an assertion
+
         map.putPlayerInGameMap(mainCharacter.getPlayerPosition().getX(), mainCharacter.getPlayerPosition().getY());
-        for (i = 0; i < 12; i++) {
-            map.bringMonsterToMap(enemies[i].getXPosition(), enemies[i].getYPosition(), enemies[i].getName());
+        for (Enemy enemy : enemiesList) {
+            map.bringMonsterToMap(enemy.getXPosition(), enemy.getYPosition(), enemy.getIcon());
         }
-        map.bringMonsterToMap(enemies[12].getXPosition(), enemies[12].getYPosition(), enemies[12].getName());
-        map.bringMonsterToMap(enemies[13].getXPosition(), enemies[13].getYPosition(), enemies[13].getName());
+
         // the game begins
         while (Game.zoramUndefeated) {
             map.printMap();
-            menu();
+            UserInterface.showMenu();
             userInput.reset();
 
             while (playerChoice != 'w'
@@ -138,8 +113,7 @@ public class Game {
                     && playerChoice != 'i'
                     && playerChoice != 'v'
                     && playerChoice != 'q') {
-                playerChoice = userInput.next()
-                        .charAt(0);
+                playerChoice = userInput.next().charAt(0);
                 if (playerChoice != 'w'
                         && playerChoice != 'a'
                         && playerChoice != 'd'
@@ -153,19 +127,19 @@ public class Game {
 
             switch (playerChoice) {
                 case 'w': {
-                    manageMovement(mainCharacter, map, enemies, 'w');
+                    manageMovement(mainCharacter, map, enemiesList, 'w');
                 }
                 break;
                 case 'a': {
-                    manageMovement(mainCharacter, map, enemies, 'a');
+                    manageMovement(mainCharacter, map, enemiesList, 'a');
                 }
                 break;
                 case 'd': {
-                    manageMovement(mainCharacter, map, enemies, 'd');
+                    manageMovement(mainCharacter, map, enemiesList, 'd');
                 }
                 break;
                 case 's': {
-                    manageMovement(mainCharacter, map, enemies, 's');
+                    manageMovement(mainCharacter, map, enemiesList, 's');
                 }
                 break;
                 case 'i':
@@ -198,26 +172,26 @@ public class Game {
         userInput.close();
     }
 
-    void intro() {
-        GameLogger.print("""
-
-                Welcome traveler to this mysterious trial you will be facing!
-                This is the magical land of Marghor, ruled by the tyrannical sorcerer Zoram.
-                We bid you welcome!
-                
-                Since you accept the challenge to defeat Zoram (which main character doesn't?)
-                You must choose...
-                    1) New Game
-                    2) Continue
-                    3) Exit
-                """);
+    private static List<Enemy> getEnemiesList() {
+        return List.of(
+                new Enemy(20, 20, 5, 2,'G', "Goblin"),
+                new Enemy(20, 20, 5, 2,'G', "Goblin"),
+                new Enemy(25, 20, 6, 3,'S', "Skeleton"),
+                new Enemy(25, 20, 6, 3,'S', "Skeleton"),
+                new Enemy(23, 30, 5, 4,'R', "Rat-Man"),
+                new Enemy(23, 30, 5, 4,'R', "Rat-Man"),
+                new Enemy(35, 40, 6, 5,'D', "Salamander"),
+                new Enemy(35, 40, 6, 5,'D', "Salamander"),
+                new Enemy(30, 35, 6, 5,'K', "Kobold"),
+                new Enemy(30, 35, 6, 5,'K', "Kobold"),
+                new Enemy(35, 100, 7, 5,'P', "Spectre"),
+                new Enemy(70, 100, 10, 10,'Z', ZORAM)
+        );
     }
 
-    void menu() {
-        System.out.print("\nPress 'w' to walk forward\nPress 'a' to move left\nPress 'd' to move right"
-                + "\nPress 's' to move down\nPress 'i' to see your attributes\nPress 'v' to save your character\n"
-                + "Press'q' to exit \n\n");
-    }
+
+
+
 
     void showStats(Player p) {
         var playerStats = p.getPlayerStats();
@@ -226,8 +200,7 @@ public class Game {
         System.out.println("------------GENERAL INFORMATION----------");
         System.out.print("\tName: " + playerInformation.name());
         System.out.print("\n\tLevel: " + p.getLevel());
-        System.out.print("\n\tProfession: " + playerInformation.profession()
-                .getDisplayName());
+        System.out.print("\n\tProfession: " + playerInformation.profession().getDisplayName());
         System.out.println("\n--------------BASIC ATTRIBUTES----------");
         System.out.print("\tStrength: " + playerStats.getStrength());
         System.out.print("\n\tAgility: " + playerStats.getAgility());
@@ -240,7 +213,7 @@ public class Game {
         System.out.println("\n\tEXP: " + playerStats.getExp());
     }
 
-    public Enemy checkWhichEnemy(int x, int y, Enemy[] enemies) {
+    public Enemy checkWhichEnemy(int x, int y, List<Enemy> enemies) {
         for (Enemy enemy : enemies) {
             if (x == enemy.getXPosition() && y == enemy.getYPosition()) {
                 return enemy;
@@ -250,10 +223,10 @@ public class Game {
     }
 
 
-    void manageMovement(Player p, Map map, Enemy[] enemies, char movement) {
+    void manageMovement(Player p, Map map, List<Enemy> enemies, char movement) {
         var xPosition = p.getPlayerPosition().getX();
         var yPosition = p.getPlayerPosition().getY();
-        
+
         switch (movement) {
             case 'w': {
                 if (map.checkIfOutOfBoundaries(xPosition - 1, yPosition)) {
@@ -262,7 +235,7 @@ public class Game {
                     map.updateMap(xPosition - 1, yPosition, movement);
                     p.move(movement);
                 } else {
-                    // TODO: maybe not needed. Just let them hit a wall.
+                    // TODO: maybe not needed. Just let them hit a wall come on.
                     System.out.println("We cannot move out of the boundaries of our little universe, can we?");
                 }
             }
@@ -303,9 +276,7 @@ public class Game {
         }
     }
 
-    public boolean fightOrFindNothing(
-            char encounter, Player p, Enemy[] enemies, int enemyPositionX, int enemyPositionY
-    ) {
+    public boolean fightOrFindNothing(char encounter, Player p, List<Enemy> enemies, int enemyPositionX, int enemyPositionY) {
         if (encounter == ' ') {
             System.out.println("You found nothing of interest here...");
         } else {
@@ -320,8 +291,7 @@ public class Game {
         boolean disabledByPlayer = false;
         int turns = 0;
 
-        if (e.getName()
-                .equals(ZORAM)) {
+        if (e.getName().equals(ZORAM)) {
             System.out.println("You face the mighty and evil Zoram.\nPrepare yourself!");
         } else {
             System.out.println("You have stumbled upon " + e.getName() + ", prepare yourself!");
@@ -339,8 +309,7 @@ public class Game {
             System.out.print("'a' for attack\n'b' for abilities\n");
 
             while (choice != 'a' && choice != 'b') {
-                choice = userInput.next()
-                        .charAt(0);
+                choice = userInput.next().charAt(0);
                 if (choice != 'a' && choice != 'b') {
                     System.out.println("Please choose the appropriate choice.");
                 }
@@ -384,30 +353,22 @@ public class Game {
                                         + " damage.");
                                 turns = 5;
                             } else {
-                                System.out.println("Spectre attacks you and does: "
-                                        + e.calculateAndApplyDamage(p.getPlayerStats(), 0)
-                                        + " damage.");
+                                System.out.println("Spectre attacks you and does: " + e.calculateAndApplyDamage(p.getPlayerStats(), 0) + " damage.");
                             }
                         }
                         break;
                         case ZORAM: {
                             if (turns == 0) {
-                                System.out.println(
-                                        "The sorceror Zoram uses his healing abilities. His health increases by 50.");
+                                System.out.println("The sorceror Zoram uses his healing abilities. His health increases by 50.");
                                 e.setHealthPoints(e.getHealthPoints() + 50);
                             } else {
-                                System.out.println("The sorceror Zoram attacks you and does: "
-                                        + e.calculateAndApplyDamage(p.getPlayerStats(), 0)
-                                        + " damage.");
+                                System.out.println("The sorceror Zoram attacks you and does: " + e.calculateAndApplyDamage(p.getPlayerStats(), 0) + " damage.");
                             }
                         }
                         break;
                     }
                 } else {
-                    System.out.println(e.getName()
-                            + " attacks you and does "
-                            + e.calculateAndApplyDamage(p.getPlayerStats(), 0)
-                            + " damage\n");
+                    System.out.println(e.getName() + " attacks you and does " + e.calculateAndApplyDamage(p.getPlayerStats(), 0) + " damage\n");
                 }
 
                 if (turns > 0 || turns - 1 == 0) {
@@ -424,13 +385,8 @@ public class Game {
             System.out.println("GAME OVER");
             System.exit(0);
         }
-        if (e.getName()
-                .equals(ZORAM)) {
-            System.out.println("You defeated the evil"
-                    + e.getName()
-                    + " and won "
-                    + e.getExpAmountWhenKilled()
-                    + " EXP");
+        if (e.getName().equals(ZORAM)) {
+            System.out.println("You defeated the evil" + e.getName() + " and won " + e.getExpAmountWhenKilled() + " EXP");
             System.out.println("His reign ends here!\nCongratulations " + p.getPlayerInformation().name() + "!\nYou truly are remarkable!");
             Game.zoramUndefeated = false;
         } else {

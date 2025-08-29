@@ -38,30 +38,8 @@ public class Map {
 		gameMap[x][y] = 'X';
 	}
 	
-	public void bringMonsterToMap(int x, int y, String monster) {
-		switch(monster) {
-			case "Goblin" :
-				gameMap[x][y] = 'G';
-				break;
-			case "Skeleton" :
-				gameMap[x][y] = 'S';
-				break;
-			case "Rat-Man" :
-				gameMap[x][y] = 'R';
-				break;
-			case "Salamander" :
-				gameMap[x][y] = 'D';
-				break;
-			case "Kobold" :
-				gameMap[x][y] = 'K';
-				break;
-			case "Spectre" :
-				gameMap[x][y] = 'T';
-				break;
-			case "Zoram" :
-				gameMap[x][y] = 'Z';
-				break;
-		}
+	public void bringMonsterToMap(int x, int y, char monster) {
+        gameMap[x][y] = monster;
 	}
 	
 	public void printMap() {
@@ -96,17 +74,8 @@ public class Map {
 		gameMap[newX][newY] = 'X';
 	}
 
-	// TODO: encounters feel wonky. Perhaps handle them differently
+	// TODO: encounters feel wonky. Perhaps handle them differently (were handled differently, need testing)
 	public char checkForEncounter(int x, int y) {
-        return switch (gameMap[x][y]) {
-            case 'G' -> 'G';
-            case 'S' -> 'S';
-            case 'R' -> 'R';
-            case 'K' -> 'K';
-            case 'D' -> 'D';
-            case 'Z' -> 'Z';
-            case 'T' -> 'T';
-            default -> ' ';
-        };
+        return gameMap[x][y];
 	}
 }
