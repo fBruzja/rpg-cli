@@ -4,6 +4,7 @@ import com.rpg.characters.Enemy;
 import com.rpg.characters.Player;
 import com.rpg.datamanagement.ResourceManager;
 import com.rpg.datamanagement.data.SaveData;
+import com.rpg.game.outcome.AttackOutcome;
 import com.rpg.map.Map;
 import com.rpg.userinterface.UserInterface;
 import java.util.List;
@@ -22,7 +23,7 @@ public class Game {
 
         String name;
         char profession, playerChoice = ' ';
-        Player mainCharacter = null;
+        Player player = null;
         SaveData data;
         profession = '0';
 
@@ -66,7 +67,7 @@ public class Game {
                         break;
                 }
 
-                mainCharacter = new Player(name, profession);
+                player = new Player(name, profession);
             }
             break;
             case '2': {
@@ -75,8 +76,8 @@ public class Game {
                     log.info("Character load failed");
                 } else {
                     var playerInfo = data.getPlayerInformation();
-                    mainCharacter = new Player(playerInfo.name(), profession);
-                    ResourceManager.loadTheDataInThePlayer(data, mainCharacter);
+                    player = new Player(playerInfo.name(), profession);
+                    ResourceManager.loadTheDataInThePlayer(data, player);
                     System.out.println("\n\tGAME LOADED");
                 }
             }
@@ -93,9 +94,9 @@ public class Game {
 
         Map map = new Map();
 
-        assert mainCharacter != null; // TODO: deal with it differently than just an assertion
+        assert player != null; // TODO: deal with it differently than just an assertion
 
-        map.putPlayerInGameMap(mainCharacter.getPlayerPosition().getX(), mainCharacter.getPlayerPosition().getY());
+        map.putPlayerInGameMap(player.getPlayerPosition().getX(), player.getPlayerPosition().getY());
         for (Enemy enemy : enemiesList) {
             map.bringMonsterToMap(enemy.getXPosition(), enemy.getYPosition(), enemy.getIcon());
         }
@@ -127,23 +128,23 @@ public class Game {
 
             switch (playerChoice) {
                 case 'w': {
-                    manageMovement(mainCharacter, map, enemiesList, 'w');
+                    manageMovement(player, map, enemiesList, 'w');
                 }
                 break;
                 case 'a': {
-                    manageMovement(mainCharacter, map, enemiesList, 'a');
+                    manageMovement(player, map, enemiesList, 'a');
                 }
                 break;
                 case 'd': {
-                    manageMovement(mainCharacter, map, enemiesList, 'd');
+                    manageMovement(player, map, enemiesList, 'd');
                 }
                 break;
                 case 's': {
-                    manageMovement(mainCharacter, map, enemiesList, 's');
+                    manageMovement(player, map, enemiesList, 's');
                 }
                 break;
                 case 'i':
-                    showStats(mainCharacter);
+                    UserInterface.showStats(player);
                     break;
                 case 'q': {
                     System.out.println("Until next time!");
@@ -151,7 +152,7 @@ public class Game {
                 }
                 break;
                 case 'v': {
-                    data = ResourceManager.createSaveData(mainCharacter);
+                    data = ResourceManager.createSaveData(player);
                     try {
                         ResourceManager.save(data, "../saves/character.save");
                         System.out.println("Data saved successfully!");
@@ -189,30 +190,6 @@ public class Game {
         );
     }
 
-
-
-
-
-    void showStats(Player p) {
-        var playerStats = p.getPlayerStats();
-        var playerInformation = p.getPlayerInformation();
-
-        System.out.println("------------GENERAL INFORMATION----------");
-        System.out.print("\tName: " + playerInformation.name());
-        System.out.print("\n\tLevel: " + p.getLevel());
-        System.out.print("\n\tProfession: " + playerInformation.profession().getDisplayName());
-        System.out.println("\n--------------BASIC ATTRIBUTES----------");
-        System.out.print("\tStrength: " + playerStats.getStrength());
-        System.out.print("\n\tAgility: " + playerStats.getAgility());
-        System.out.print("\n\tIntelligence: " + playerStats.getIntelligence());
-        System.out.println("\n-------------------STATS----------------");
-        System.out.print("\tHP: " + playerStats.getHealthPoints());
-        System.out.print("\n\tMP: " + playerStats.getManaPoints());
-        System.out.print("\n\tAttack: " + playerStats.getAttackPoints());
-        System.out.print("\n\tDefense: " + playerStats.getDefense());
-        System.out.println("\n\tEXP: " + playerStats.getExp());
-    }
-
     public Enemy checkWhichEnemy(int x, int y, List<Enemy> enemies) {
         for (Enemy enemy : enemies) {
             if (x == enemy.getXPosition() && y == enemy.getYPosition()) {
@@ -231,7 +208,7 @@ public class Game {
             case 'w': {
                 if (map.checkIfOutOfBoundaries(xPosition - 1, yPosition)) {
                     char encounter = map.checkForEncounter(xPosition - 1, yPosition);
-                    fightOrFindNothing(encounter, p, enemies, xPosition - 1, yPosition);
+                    checkIfMonsterEncounter(encounter, p, enemies, xPosition - 1, yPosition);
                     map.updateMap(xPosition - 1, yPosition, movement);
                     p.move(movement);
                 } else {
@@ -243,7 +220,7 @@ public class Game {
             case 'a': {
                 if (map.checkIfOutOfBoundaries(xPosition, yPosition - 1)) {
                     char encounter = map.checkForEncounter(xPosition, yPosition - 1);
-                    fightOrFindNothing(encounter, p, enemies, xPosition, yPosition - 1);
+                    checkIfMonsterEncounter(encounter, p, enemies, xPosition, yPosition - 1);
                     map.updateMap(xPosition, yPosition - 1, movement);
                     p.move(movement);
                 } else {
@@ -254,7 +231,7 @@ public class Game {
             case 'd': {
                 if (map.checkIfOutOfBoundaries(xPosition, yPosition + 1)) {
                     char encounter = map.checkForEncounter(xPosition, yPosition + 1);
-                    fightOrFindNothing(encounter, p, enemies, xPosition, yPosition + 1);
+                    checkIfMonsterEncounter(encounter, p, enemies, xPosition, yPosition + 1);
                     map.updateMap(xPosition, yPosition + 1, movement);
                     p.move(movement);
                 } else {
@@ -265,7 +242,7 @@ public class Game {
             case 's': {
                 if (map.checkIfOutOfBoundaries(xPosition + 1, yPosition)) {
                     char encounter = map.checkForEncounter(xPosition + 1, yPosition);
-                    fightOrFindNothing(encounter, p, enemies, xPosition + 1, yPosition);
+                    checkIfMonsterEncounter(encounter, p, enemies, xPosition + 1, yPosition);
                     map.updateMap(xPosition + 1, yPosition, movement);
                     p.move(movement);
                 } else {
@@ -276,16 +253,13 @@ public class Game {
         }
     }
 
-    public boolean fightOrFindNothing(char encounter, Player p, List<Enemy> enemies, int enemyPositionX, int enemyPositionY) {
-        if (encounter == ' ') {
-            System.out.println("You found nothing of interest here...");
-        } else {
-            return fight(p, checkWhichEnemy(enemyPositionX, enemyPositionY, enemies));
+    public void checkIfMonsterEncounter(char encounter, Player p, List<Enemy> enemies, int enemyPositionX, int enemyPositionY) {
+        if (encounter != ' ') {
+            fight(p, checkWhichEnemy(enemyPositionX, enemyPositionY, enemies));
         }
-        return false; // return false if there was no fight
     }
 
-    boolean fight(Player p, Enemy e) {
+    void fight(Player p, Enemy e) {
         char choice = ' ';
         boolean poison = false;
         boolean disabledByPlayer = false;
@@ -294,19 +268,14 @@ public class Game {
         if (e.getName().equals(ZORAM)) {
             System.out.println("You face the mighty and evil Zoram.\nPrepare yourself!");
         } else {
-            System.out.println("You have stumbled upon " + e.getName() + ", prepare yourself!");
+            System.out.println("You have stumbled upon a " + e.getName() + ", prepare yourself!");
         }
 
         var stats = p.getPlayerStats();
 
         while (stats.getHealthPoints() > 0 && e.getHealthPoints() > 0) {
 
-            // player's turn
-            System.out.println(p.getPlayerInformation().name() + " HP: " + stats.getHealthPoints() + " | MP: " + stats.getManaPoints());
-            System.out.println(e.getName() + " HP: " + e.getHealthPoints());
-            System.out.println("It is your turn");
-            System.out.println("What will your move be?");
-            System.out.print("'a' for attack\n'b' for abilities\n");
+            UserInterface.printPlayerHUD(p, e);
 
             while (choice != 'a' && choice != 'b') {
                 choice = userInput.next().charAt(0);
@@ -317,24 +286,24 @@ public class Game {
 
             switch (choice) {
                 case 'a':
-                    poison = p.physicalAtatck(p, e, poison);
+                    AttackOutcome outcome = p.physicalAttack(e, poison);
                     break;
                 case 'b': {
                     switch (p.showAndSelectAbilityDuringBattle(p, userInput)) {
                         case '0': {
-                            poison = p.firstAbilityUsage(p, e);
+                            poison = p.useFirstSlotAbility(e);
                         }
                         break;
                         case '1': {
-                            p.secondAbilityUsage(p, e);
+                            p.useSecondSlotAbility(p, e);
                         }
                         break;
                         case '2': {
-                            disabledByPlayer = p.thirdAbilityUsage(p, e);
+                            disabledByPlayer = p.useThirdSlotAbility(p, e);
                         }
                         break;
                         case '3': {
-                            p.fourthAbilityUsage(p, e);
+                            p.useFourthSlotAbility(p, e);
                         }
                         break;
                     }
@@ -371,7 +340,7 @@ public class Game {
                     System.out.println(e.getName() + " attacks you and does " + e.calculateAndApplyDamage(p.getPlayerStats(), 0) + " damage\n");
                 }
 
-                if (turns > 0 || turns - 1 == 0) {
+                if (turns >= 0) {
                     turns--;
                 }
             } else {
@@ -381,7 +350,7 @@ public class Game {
             choice = ' ';
         }
         if (stats.getHealthPoints() <= 0) {
-            System.out.println("Battle ended! You died...");
+            System.out.println("Battle ended! You died.");
             System.out.println("GAME OVER");
             System.exit(0);
         }
@@ -395,7 +364,6 @@ public class Game {
         stats.setHealthPoints(stats.getHealthPoints() + 10);
         stats.setManaPoints(stats.getManaPoints() + 10);
         p.getBattleRewards(e.getExpAmountWhenKilled());
-        return true; // return true if fight is over and player is still alive
     }
 
 }

@@ -13,10 +13,4 @@ public enum Profession {
     Profession(String displayName) {
         this.displayName = displayName;
     }
-
-    // TODO: do i need this?
-    @Override
-    public String toString() {
-        return displayName;
-    }
 }

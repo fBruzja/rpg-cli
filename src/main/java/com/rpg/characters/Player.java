@@ -1,9 +1,20 @@
 package com.rpg.characters;
 
+import com.rpg.characters.abilitymanagement.AbilityContext;
+import com.rpg.characters.abilitymanagement.AbilityExecutor;
+import com.rpg.characters.abilitymanagement.AbilityId;
+import com.rpg.characters.abilitymanagement.AbilitySlot;
+import com.rpg.characters.abilitymanagement.AbilityWiring;
+import com.rpg.characters.abilitymanagement.PlayerAbilities;
+import com.rpg.characters.abilitymanagement.StarterAbilities;
 import com.rpg.characters.data.PersonalPlayerInformation;
 import com.rpg.characters.data.Position;
 import com.rpg.characters.data.Profession;
 import com.rpg.characters.data.Stats;
+import com.rpg.game.AttackBonusType;
+import com.rpg.game.outcome.AbilityOutcome;
+import com.rpg.game.outcome.AttackOutcome;
+import java.util.List;
 import java.util.Scanner;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +39,9 @@ public class Player {
     Stats playerStats;
     PersonalPlayerInformation playerInformation;
 
+    // New facade (in parallel)
+    private final PlayerAbilities playerAbilities = new PlayerAbilities();
+
     String[] abilities = new String[4];
     boolean warriorUsedLastSkill = false;
 
@@ -44,6 +58,7 @@ public class Player {
                 .build();
         this.playerPosition = new Position(STARTING_X_COORDINATE, STARTING_Y_COORDINATE);
 
+        //TODO: Profession selection needs a revamp as well!!!
         Profession selectedProfession = Profession.WARRIOR;
 
         if(newProfession == 'w' || newProfession == 'W') {
@@ -55,6 +70,10 @@ public class Player {
             selectedProfession = Profession.MAGE;
             abilities[0] = "Fireball";
         }
+
+        AbilityId starter = StarterAbilities.starterFor(selectedProfession);
+        playerAbilities.learn(starter);
+        playerAbilities.equip(AbilitySlot.SLOT_1, starter);
 
         this.playerInformation = new PersonalPlayerInformation(newName, selectedProfession);
 
@@ -82,20 +101,17 @@ public class Player {
         }
     }
 
-    public boolean physicalAtatck(Player p, Enemy e, boolean poison) {
-        if (poison) {
-            System.out.println("You attack with your poisoned blade! You made: "
-                    + p.calculateDamageDoneByPlayer(e.getDefense(), 1, true)
-                    + " damage!");
-            p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 1, true), 0);
-            poison = false;
-        } else {
-            System.out.println("You attack! You made: "
-                    + p.calculateDamageDoneByPlayer(e.getDefense(), 0, true)
-                    + " damage!");
-            p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 0, true), 0);
-        }
-        return poison;
+    public AttackOutcome physicalAttack(Enemy defender, boolean poison) {
+        int bonusFactor = poison ? 1 : 0;
+        int damageDealt = calculateDamageDoneByPlayer(defender.getDefense(), bonusFactor, AttackBonusType.ADDITIVE);
+        consumeManaAndRemoveEnemyHealth(defender, damageDealt, 0);
+
+        String attackMessage = "You attack" + (poison ? " with your poisoned blade!" : "!\n");
+        String outcomeMessage = "You made: " + damageDealt + " damage!\n";
+
+        boolean defenderIsDead = defender.getHealthPoints() <= 0;
+
+        return new AttackOutcome(damageDealt, poison, defenderIsDead, List.of(attackMessage, outcomeMessage));
     }
 
     public char showAndSelectAbilityDuringBattle(Player p, Scanner userInput) {
@@ -129,153 +145,61 @@ public class Player {
         return choice;
     }
 
-    public boolean firstAbilityUsage(Player p, Enemy e) {
-        boolean poison = false;
-        var playerProfession = p.getPlayerInformation()
-                .profession();
-        var manaPoints = playerStats.getManaPoints();
-
-        if (playerProfession == Profession.WARRIOR) {
-            if (manaPoints >= 20) {
-                System.out.println("You use "
-                        + abilities[0]
-                        + "! You made: "
-                        + p.calculateDamageDoneByPlayer(e.getDefense(), 2, false)
-                        + " damage!");
-                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 2, false), 20);
-            } else {
-                System.out.println("You do not have enough mana. You need 20 for this skill.");
-            }
-        } else if (playerProfession == Profession.THIEF) {
-            if (manaPoints >= 15) {
-                System.out.println("You use " + abilities[0] + "! Your next attack will do more damage.");
-                poison = true;
-                playerStats.setManaPoints(playerStats.getManaPoints() - 15);
-            } else {
-                System.out.println("You do not have enough mana. You need 15 for this skill.");
-            }
-        } else if (playerProfession == Profession.MAGE) {
-            if (manaPoints >= 15) {
-                System.out.println("You use! "
-                        + abilities[0]
-                        + " You made "
-                        + p.calculateDamageDoneByPlayer(e.getDefense(), 3, true)
-                        + " damage.");
-                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 3, true), 15);
-            } else {
-                System.out.println("You do not have enough mana. You need 15 for this skill.");
-            }
-        }
-        return poison;
+    public AbilityOutcome useFirstSlotAbility(Enemy e) {
+        return useAbilityInSlot(AbilitySlot.SLOT_1, e);
     }
 
-    public void secondAbilityUsage(Player p, Enemy e) {
-        var manaPoints = playerStats.getManaPoints();
-        var playerProfession = p.getPlayerInformation()
-                .profession();
-        if (playerProfession == Profession.WARRIOR) {
-            if (manaPoints >= 40) {
-                System.out.println("You use " + abilities[1] + ". Your health is permanently regenerated +50");
-                // TODO: METHODS FOR INCREASE/DECREASE
-                playerStats.setHealthPoints(playerStats.getHealthPoints() + 50);
-            } else {
-                System.out.println("You do not have enough mana.");
-            }
-        } else if (playerProfession == Profession.THIEF) {
-            if (manaPoints >= 50) {
-                System.out.println("You use "
-                        + abilities[1]
-                        + "! You made "
-                        + p.calculateDamageDoneByPlayer(e.getDefense(), 3, false)
-                        + " damage");
-                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 3, false), 50);
-            } else {
-                System.out.println("You do not have enough mana. You need 50 for this skill");
-            }
-        } else if (playerProfession == Profession.MAGE) {
-            if (manaPoints >= 20) {
-                System.out.println("You use "
-                        + abilities[1]
-                        + "! You made "
-                        + p.calculateDamageDoneByPlayer(e.getDefense(), 10, true)
-                        + " damage");
-                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 10, true), 20);
-            } else {
-                System.out.println("You do not have enough mana. You need 20 for this skill.");
-            }
-        }
+    public AbilityOutcome useSecondSlotAbility(Enemy e) {
+        return useAbilityInSlot(AbilitySlot.SLOT_2, e);
     }
 
-    public boolean thirdAbilityUsage(Player p, Enemy e) {
-        boolean disable = false;
-        var playerProfession = p.getPlayerInformation()
-                .profession();
-        var manaPoints = playerStats.getManaPoints();
-        if (playerProfession == Profession.WARRIOR) {
-            System.out.println("You use " + abilities[2] + "! Your opponent is disabled for the next turn");
-            disable = true;
-        } else if (playerProfession == Profession.THIEF) {
-            if (manaPoints >= 30) {
-                System.out.println("You use "
-                        + abilities[2]
-                        + " to ignore the opponent's defense! \nYou made "
-                        + p.calculateDamageDoneByPlayer(e.getDefense(), (1 + e.getDefense() / 2), true)
-                        // TODO: make calculations more readable
-                        + " damage");
-                p.consumeManaAndRemoveEnemyHealth(e,
-                        p.calculateDamageDoneByPlayer(e.getDefense(), (1 + e.getDefense() / 2), true),
-                        30
-                );
-            } else {
-                System.out.println("You do not have enough mana. You need 30 mana for this skill.");
-            }
-        } else if (playerProfession == Profession.MAGE) {
-            if (manaPoints >= 35) {
-                System.out.println("You use " + abilities[2] + "! Opponent is disabled for the next turn!");
-                disable = true;
-            } else {
-                System.out.println("You do not have enough mana. You need 35 for this skill.");
-            }
-        }
-
-        return disable;
+    public AbilityOutcome useThirdSlotAbility(Enemy e) {
+        return useAbilityInSlot(AbilitySlot.SLOT_3, e);
     }
 
-    public void fourthAbilityUsage(Player p, Enemy e) {
-        var playerProfession = p.getPlayerInformation()
-                .profession();
-        var manaPoints = playerStats.getManaPoints();
-
-        if (playerProfession == Profession.WARRIOR) {
-            if (p.isWarriorUsedLastSkill()) {
-                System.out.println("You used " + abilities[3] + "! Your defense is increased by 5 permanently.");
-                p.setWarriorUsedLastSkill(false);
-            } else {
-                System.out.println("That skill can be used only once.");
-            }
-        } else if (playerProfession == Profession.THIEF) {
-            if (manaPoints >= 60) {
-                System.out.println("You used " + abilities[3] + ". Opponent is in near death.");
-                p.consumeManaAndRemoveEnemyHealth(e, e.getHealthPoints() - 5, 60);
-            } else {
-                System.out.println("You do not have enough mana. You need 60 mana for this skill.");
-            }
-        } else if (playerProfession == Profession.MAGE) {
-            if (manaPoints >= 30) {
-                System.out.println("You use "
-                        + abilities[3]
-                        + "! You made "
-                        + p.calculateDamageDoneByPlayer(e.getDefense(), 25, true)
-                        + " damage.");
-                p.consumeManaAndRemoveEnemyHealth(e, p.calculateDamageDoneByPlayer(e.getDefense(), 25, true), 30);
-            } else {
-                System.out.println("You do not have enough mana. You need 30 for this skill.");
-            }
-        }
+    public AbilityOutcome useFourthSlotAbility(Enemy e) {
+        return useAbilityInSlot(AbilitySlot.SLOT_4, e);
     }
 
-    public int calculateDamageDoneByPlayer(int enemyDefense, int bonusFactor, boolean bonusType) {
-        int adjustedAttack = bonusType
+    private AbilityId defaultAbilityFor(AbilitySlot slot) {
+        return switch (playerInformation.profession()) {
+            case WARRIOR -> switch (slot) {
+                case SLOT_1 -> StarterAbilities.starterFor(playerInformation.profession());
+                case SLOT_2 -> AbilityId.HEALING_SALVE;
+                case SLOT_3 -> AbilityId.CHARGE;
+                case SLOT_4 -> AbilityId.BEST_DEFENSE;
+            };
+            case THIEF -> switch (slot) {
+                case SLOT_1 -> StarterAbilities.starterFor(playerInformation.profession());
+                case SLOT_2 -> AbilityId.CRITICAL_STRIKE;
+                case SLOT_3 -> AbilityId.WITHER;
+                case SLOT_4 -> AbilityId.COUP_DE_GRACE;
+            };
+            case MAGE -> switch (slot) {
+                case SLOT_1 -> StarterAbilities.starterFor(playerInformation.profession());
+                case SLOT_2 -> AbilityId.ELECTROCUTE;
+                case SLOT_3 -> AbilityId.DEGEN_AURA;
+                case SLOT_4 -> AbilityId.DEATH_DOME;
+            };
+        };
+    }
+
+    private AbilityOutcome useAbilityInSlot(AbilitySlot slot, Enemy target) {
+        var equipped = playerAbilities.getEquipped(slot);
+        AbilityId toUse = equipped.orElseGet(() -> defaultAbilityFor(slot));
+        AbilityExecutor executor = AbilityWiring.createExecutor();
+
+        var ctx = new AbilityContext(this, target);
+        return executor.execute(toUse, ctx, playerAbilities);
+    }
+
+
+    public int calculateDamageDoneByPlayer(int enemyDefense, int bonusFactor, AttackBonusType bonusType) {
+        if(bonusFactor == 0 || bonusType == AttackBonusType.NOT_APPLICABLE ) {
+            return Math.max(0, playerStats.getAttackPoints());
+        }
+
+        int adjustedAttack = bonusType == AttackBonusType.ADDITIVE
                 ? playerStats.getAttackPoints() + bonusFactor
                 : playerStats.getAttackPoints() * bonusFactor;
 
@@ -392,6 +316,10 @@ public class Player {
 
     public void modifyAbility(int index, String ability) {
         abilities[index] = ability;
+    }
+
+    public PlayerAbilities abilitiesFacade() {
+        return playerAbilities;
     }
 
 }
