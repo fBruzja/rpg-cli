@@ -2,9 +2,14 @@ package com.rpg.userinterface;
 
 import com.rpg.characters.Enemy;
 import com.rpg.characters.Player;
+import com.rpg.characters.abilitymanagement.AbilityId;
+import com.rpg.characters.abilitymanagement.AbilityRegistry;
+import com.rpg.characters.abilitymanagement.AbilitySlot;
+import com.rpg.characters.abilitymanagement.PlayerAbilities;
 import com.rpg.characters.data.Stats;
 import com.rpg.game.PlayerFightDecision;
 import com.rpg.utils.GameLogger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -97,5 +102,39 @@ public class UserInterface {
         for (String msg : messages) {
             GameLogger.print(msg);
         }
+    }
+
+    public static void showEquippedAbilities(Player p) {
+        var pa = p.abilitiesFacade();
+        GameLogger.print("----- Equipped Abilities -----");
+        for (AbilitySlot slot : AbilitySlot.values()) {
+            var equipped = pa.getEquipped(slot);
+            String name = equipped
+                    .map(id -> AbilityRegistry.getAbilityMetadata(id).name())
+                    .orElse("--- Empty ---");
+            GameLogger.print(slotLabel(slot) + ": " + name);
+        }
+    }
+
+    public static void showLearnedAbilities(Player p) {
+        var learned = new ArrayList<>(p.abilitiesFacade().learned());
+        GameLogger.print("----- Learned Abilities -----");
+        if (learned.isEmpty()) {
+            GameLogger.print("(none)");
+            return;
+        }
+        for (int i = 0; i < learned.size(); i++) {
+            AbilityId id = learned.get(i);
+            GameLogger.print(i + ") " + AbilityRegistry.getAbilityMetadata(id).name());
+        }
+    }
+
+    private static String slotLabel(AbilitySlot slot) {
+        return switch (slot) {
+            case SLOT_1 -> "0) SLOT_1";
+            case SLOT_2 -> "1) SLOT_2";
+            case SLOT_3 -> "2) SLOT_3";
+            case SLOT_4 -> "3) SLOT_4";
+        };
     }
 }

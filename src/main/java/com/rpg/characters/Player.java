@@ -14,6 +14,7 @@ import com.rpg.characters.data.Stats;
 import com.rpg.game.AttackBonusType;
 import com.rpg.game.outcome.AbilityOutcome;
 import com.rpg.game.outcome.AttackOutcome;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import lombok.Getter;
@@ -39,10 +40,9 @@ public class Player {
     Stats playerStats;
     PersonalPlayerInformation playerInformation;
 
-    // New facade (in parallel)
+    // Abilities facade
     private final PlayerAbilities playerAbilities = new PlayerAbilities();
 
-    String[] abilities = new String[4];
     boolean warriorUsedLastSkill = false;
 
     public Player(String newName, char newProfession) {
@@ -61,14 +61,10 @@ public class Player {
         //TODO: Profession selection needs a revamp as well!!!
         Profession selectedProfession = Profession.WARRIOR;
 
-        if(newProfession == 'w' || newProfession == 'W') {
-            abilities[0] = "Power Attack";
-        } else if(newProfession == 't' || newProfession == 'T') {
+        if (newProfession == 't' || newProfession == 'T') {
             selectedProfession = Profession.THIEF;
-            abilities[0] = "Poisoned Dagger";
-        } else if(newProfession == 'm' || newProfession == 'M') {
+        } else if (newProfession == 'm' || newProfession == 'M') {
             selectedProfession = Profession.MAGE;
-            abilities[0] = "Fireball";
         }
 
         AbilityId starter = StarterAbilities.starterFor(selectedProfession);
@@ -76,10 +72,6 @@ public class Player {
         playerAbilities.equip(AbilitySlot.SLOT_1, starter);
 
         this.playerInformation = new PersonalPlayerInformation(newName, selectedProfession);
-
-        for (int i = 1; i < 4; i++) {
-            abilities[i] = "---Empty---";
-        }
     }
 
     public void move(char movement) {
@@ -112,37 +104,6 @@ public class Player {
         boolean defenderIsDead = defender.getHealthPoints() <= 0;
 
         return new AttackOutcome(damageDealt, poison, defenderIsDead, List.of(attackMessage, outcomeMessage));
-    }
-
-    public char showAndSelectAbilityDuringBattle(Player p, Scanner userInput) {
-        boolean emptySpellChoice = false;
-        char choice = ' ';
-
-        System.out.println("Your abilities are: ");
-        String[] abilities = p.getAbilities();
-
-        for (int i = 0; i < abilities.length; i++) {
-            System.out.println(i + ") " + abilities[i]);
-        }
-
-        System.out.println("\nChoose according to number");
-        userInput.reset();
-
-        while (!emptySpellChoice) {
-            choice = userInput.next()
-                    .charAt(0);
-            if (choice != '0' && choice != '1' && choice != '2' && choice != '3') {
-                System.out.println("Please choose the appropriate number.");
-            } else {
-                if (abilities[Character.getNumericValue(choice)].equals("---Empty---")) {
-                    System.out.println("Please choose a spell slot that it is not empty.");
-                } else {
-                    emptySpellChoice = true;
-                }
-            }
-        }
-
-        return choice;
     }
 
     public AbilityOutcome useFirstSlotAbility(Enemy e) {
@@ -229,76 +190,77 @@ public class Player {
         playerStats.setIntelligence(playerStats.getIntelligence() + ((playerProfession == Profession.MAGE) ? 3 : 1));
 
         refreshSkills();
-        addNewAbilities(playerProfession, level);
+
+        var learnMessages = learnAndAutoEquipNewAbilities(playerProfession, level);
     }
 
-    public void addNewAbilities(Profession profession, int level) {
+    private List<String> learnAndAutoEquipNewAbilities(Profession profession, int level) {
+        List<String> messages = new ArrayList<>();
+        List<AbilityId> unlocks = unlocksFor(profession, level);
+        if (unlocks.isEmpty()) {
+            return messages;
+        }
+
+        for (AbilityId id : unlocks) {
+            // Learn
+            if (!playerAbilities.isLearned(id)) {
+                playerAbilities.learn(id);
+                messages.add("You have learned a new ability: " + id.name().replace('_', ' '));
+            }
+
+            // Auto-equip into first empty slot (SLOT_2..SLOT_4; SLOT_1 is starter)
+            AbilitySlot free = firstEmptySlot();
+            if (free != null) {
+                try {
+                    playerAbilities.equip(free, id);
+                    messages.add("Auto-equipped " + id.name().replace('_', ' ') + " to " + free.name());
+                } catch (IllegalStateException ignored) {
+                    // Already equipped or not learned; skip quietly
+                }
+            }
+        }
+        return messages;
+    }
+
+    private AbilitySlot firstEmptySlot() {
+        for (AbilitySlot s : new AbilitySlot[]{AbilitySlot.SLOT_2, AbilitySlot.SLOT_3, AbilitySlot.SLOT_4}) {
+            if (playerAbilities.getEquipped(s).isEmpty()) {
+                return s;
+            }
+        }
+        return null;
+    }
+
+    // Map profession+level to ability unlocks (IDs)
+    private List<AbilityId> unlocksFor(Profession profession, int level) {
         switch (profession) {
-            case Profession.WARRIOR: {
-                switch (level) {
-                    case 3: {
-                        System.out.println("You have learned a new ability: Healing Salve. \n It heals 50 HP");
-                        modifyAbility(1, "Healing Salve");
-                    }
-                    break;
-                    case 6: {
-                        System.out.println(
-                                "You have learned a new ability: Charge\nOpponent gets disabled for the next turn!");
-                        modifyAbility(2, "Charge");
-                    }
-                    break;
-                    case 10: {
-                        System.out.println(
-                                "You have learned a new ability: Best Defense\nYour defense permanently increases by 5");
-                        modifyAbility(3, "Best Defense");
-                    }
-                    break;
-                }
+            case WARRIOR -> {
+                return switch (level) {
+                    case 3 -> List.of(AbilityId.HEALING_SALVE);
+                    case 6 -> List.of(AbilityId.CHARGE);
+                    case 10 -> List.of(AbilityId.BEST_DEFENSE);
+                    default -> List.of();
+                };
             }
-            break;
-            case Profession.THIEF: {
-                switch (level) {
-                    case 3: {
-                        System.out.println(
-                                "You have learned a new ability: Critical Strike. \n Your next attack does triple damage");
-                        modifyAbility(1, "Critical Strike");
-                    }
-                    break;
-                    case 6: {
-                        System.out.println("You have learned a new ability: Wither\nOpponent's defense is ignored!");
-                        modifyAbility(2, "Wither");
-                    }
-                    break;
-                    case 10: {
-                        System.out.println(
-                                "You have learned a new ability: Coup De Grace\nYour attack brings your enemy near death!");
-                        modifyAbility(3, "Coup De Grace");
-                    }
-                    break;
-                }
+            case THIEF -> {
+                return switch (level) {
+                    case 3 -> List.of(AbilityId.CRITICAL_STRIKE);
+                    case 6 -> List.of(AbilityId.WITHER);
+                    case 10 -> List.of(AbilityId.COUP_DE_GRACE);
+                    default -> List.of();
+                };
             }
-            break;
-            case Profession.MAGE: {
-                switch (level) {
-                    case 3: {
-                        System.out.println("You have learned a new ability: Electrocute. \n Deals 10+ damage!");
-                        modifyAbility(1, "Electrocute");
-                    }
-                    break;
-                    case 6: {
-                        System.out.println(
-                                "You have learned a new ability: Degen Aura\nEnemy is disabled the next turn!");
-                        modifyAbility(2, "Degen Aura");
-                    }
-                    break;
-                    case 10: {
-                        System.out.println("You have learned a new ability: Death Dome\nDeals 25+ damage");
-                        modifyAbility(3, "Best Defense");
-                    }
-                    break;
-                }
+            case MAGE -> {
+                return switch (level) {
+                    case 3 -> List.of(AbilityId.ELECTROCUTE);
+                    case 6 -> List.of(AbilityId.DEGEN_AURA);
+                    case 10 -> List.of(AbilityId.DEATH_DOME);
+                    default -> List.of();
+                };
             }
-            break;
+            default -> {
+                return List.of();
+            }
         }
     }
 
@@ -312,10 +274,6 @@ public class Player {
                 levelUp();
             }
         }
-    }
-
-    public void modifyAbility(int index, String ability) {
-        abilities[index] = ability;
     }
 
     public PlayerAbilities abilitiesFacade() {
