@@ -4,6 +4,7 @@ import com.rpg.characters.Enemy;
 import com.rpg.characters.Player;
 import com.rpg.characters.abilitymanagement.AbilitySlot;
 import com.rpg.game.outcome.AbilityOutcome;
+import com.rpg.game.outcome.BattleResult;
 import com.rpg.userinterface.UserInterface;
 import java.util.List;
 import lombok.Getter;
@@ -14,6 +15,37 @@ public class BattleController {
     private boolean poisonActive = false;
     @Getter
     private boolean enemyDisabledNextTurn = false;
+
+    public BattleResult runBattle(Player player, Enemy enemy) {
+        boolean playerDied = false;
+        boolean enemyDied = false;
+
+        // Battle loop
+        while(player.getPlayerStats().getHealthPoints() > 0 && enemy.getHealthPoints() > 0) {
+            executePlayerTurn(player, enemy);
+
+            if(enemy.getHealthPoints() <= 0) {
+                enemyDied = true;
+                break;
+            }
+
+            executeEnemyTurn(player, enemy);
+
+            if(player.getPlayerStats().getHealthPoints() <= 0) {
+                playerDied = true;
+                break;
+            }
+        }
+        // TODO: write proper end battle messages depending on status
+        List<String> messages = List.of("Battle over!");
+
+        return new BattleResult(
+                playerDied,
+                enemyDied,
+                enemyDied ? enemy.getExpAmountWhenKilled() : 0,
+                messages
+        );
+    }
 
     public void executePlayerTurn(Player player, Enemy enemy) {
         UserInterface.printPlayerHUD(player, enemy);
@@ -75,6 +107,7 @@ public class BattleController {
             return;
         }
 
+        // TODO:
         // Perform enemy action (existing logic)
         // Example placeholder – keep my existing enemy attack flow here
         // int damage = enemy.calculateAndApplyDamage(player.getPlayerStats(), 0);

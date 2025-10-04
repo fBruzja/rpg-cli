@@ -18,9 +18,9 @@ public final class AbilityWiring {
     private AbilityWiring() {}
 
     public static AbilityExecutor createExecutor() {
-        Map<AbilityId, Ability> logic = Map.of(
+        Map<AbilityId, Ability> logic = Map.ofEntries(
                 // SLOT_1 starters
-                AbilityId.POWER_ATTACK, new PowerAttackAbility(),
+                Map.entry(AbilityId.POWER_ATTACK, new PowerAttackAbility()),
                 AbilityId.POISONED_DAGGER, new PoisonedDaggerAbility(),
                 AbilityId.FIREBALL, new FireballAbility(),
                 // SLOT_2 (level 3 unlocks)

@@ -4,7 +4,8 @@ import com.rpg.characters.Enemy;
 import com.rpg.characters.Player;
 import com.rpg.datamanagement.ResourceManager;
 import com.rpg.datamanagement.data.SaveData;
-import com.rpg.game.outcome.AttackOutcome;
+import com.rpg.game.BattleController;
+import com.rpg.game.outcome.BattleResult;
 import com.rpg.map.Map;
 import com.rpg.userinterface.UserInterface;
 import java.util.List;
@@ -18,6 +19,14 @@ public class Game {
     public static final String ZORAM = "Zoram";
     public static Scanner userInput = new Scanner(System.in);
     public static boolean zoramUndefeated = true;
+    private final BattleController battleController;
+    private List<Enemy> enemiesList;
+    public static boolean GAME_OVER = false;
+
+    public Game() {
+        battleController = new BattleController();
+        enemiesList = getEnemiesList();
+    }
 
     void startGame() {
 
@@ -27,7 +36,6 @@ public class Game {
         SaveData data;
         profession = '0';
 
-        List<Enemy> enemiesList = getEnemiesList();
 
         UserInterface.showIntro();
 
@@ -102,7 +110,7 @@ public class Game {
         }
 
         // the game begins
-        while (Game.zoramUndefeated) {
+        while (Game.zoramUndefeated && !GAME_OVER) {
             map.printMap();
             UserInterface.showMenu();
             userInput.reset();
@@ -128,19 +136,19 @@ public class Game {
 
             switch (playerChoice) {
                 case 'w': {
-                    manageMovement(player, map, enemiesList, 'w');
+                    manageMovement(player, map, 'w');
                 }
                 break;
                 case 'a': {
-                    manageMovement(player, map, enemiesList, 'a');
+                    manageMovement(player, map, 'a');
                 }
                 break;
                 case 'd': {
-                    manageMovement(player, map, enemiesList, 'd');
+                    manageMovement(player, map, 'd');
                 }
                 break;
                 case 's': {
-                    manageMovement(player, map, enemiesList, 's');
+                    manageMovement(player, map, 's');
                 }
                 break;
                 case 'i':
@@ -200,7 +208,7 @@ public class Game {
     }
 
 
-    void manageMovement(Player p, Map map, List<Enemy> enemies, char movement) {
+    void manageMovement(Player p, Map map, char movement) {
         var xPosition = p.getPlayerPosition().getX();
         var yPosition = p.getPlayerPosition().getY();
 
@@ -208,7 +216,7 @@ public class Game {
             case 'w': {
                 if (map.checkIfOutOfBoundaries(xPosition - 1, yPosition)) {
                     char encounter = map.checkForEncounter(xPosition - 1, yPosition);
-                    checkIfMonsterEncounter(encounter, p, enemies, xPosition - 1, yPosition);
+                    manageEncounter(encounter, p, xPosition - 1, yPosition);
                     map.updateMap(xPosition - 1, yPosition, movement);
                     p.move(movement);
                 } else {
@@ -220,7 +228,7 @@ public class Game {
             case 'a': {
                 if (map.checkIfOutOfBoundaries(xPosition, yPosition - 1)) {
                     char encounter = map.checkForEncounter(xPosition, yPosition - 1);
-                    checkIfMonsterEncounter(encounter, p, enemies, xPosition, yPosition - 1);
+                    manageEncounter(encounter, p, xPosition, yPosition - 1);
                     map.updateMap(xPosition, yPosition - 1, movement);
                     p.move(movement);
                 } else {
@@ -231,7 +239,7 @@ public class Game {
             case 'd': {
                 if (map.checkIfOutOfBoundaries(xPosition, yPosition + 1)) {
                     char encounter = map.checkForEncounter(xPosition, yPosition + 1);
-                    checkIfMonsterEncounter(encounter, p, enemies, xPosition, yPosition + 1);
+                    manageEncounter(encounter, p, xPosition, yPosition + 1);
                     map.updateMap(xPosition, yPosition + 1, movement);
                     p.move(movement);
                 } else {
@@ -242,7 +250,7 @@ public class Game {
             case 's': {
                 if (map.checkIfOutOfBoundaries(xPosition + 1, yPosition)) {
                     char encounter = map.checkForEncounter(xPosition + 1, yPosition);
-                    checkIfMonsterEncounter(encounter, p, enemies, xPosition + 1, yPosition);
+                    manageEncounter(encounter, p,xPosition + 1, yPosition);
                     map.updateMap(xPosition + 1, yPosition, movement);
                     p.move(movement);
                 } else {
@@ -253,117 +261,18 @@ public class Game {
         }
     }
 
-    public void checkIfMonsterEncounter(char encounter, Player p, List<Enemy> enemies, int enemyPositionX, int enemyPositionY) {
+    public void manageEncounter(char encounter, Player player, int enemyPositionX, int enemyPositionY) {
         if (encounter != ' ') {
-            fight(p, checkWhichEnemy(enemyPositionX, enemyPositionY, enemies));
+            Enemy enemyConfronted = checkWhichEnemy(enemyPositionX, enemyPositionY, enemiesList);
+            BattleResult battleResult = battleController.runBattle(player, enemyConfronted);
+
+            if(battleResult.playerDied()) {
+                GAME_OVER = true;
+            }
+
+            if(battleResult.enemyDied()) {
+                UserInterface.renderMessages(battleResult.messages());
+            }
         }
     }
-
-    void fight(Player p, Enemy e) {
-        char choice = ' ';
-        boolean poison = false;
-        boolean disabledByPlayer = false;
-        int turns = 0;
-
-        if (e.getName().equals(ZORAM)) {
-            System.out.println("You face the mighty and evil Zoram.\nPrepare yourself!");
-        } else {
-            System.out.println("You have stumbled upon a " + e.getName() + ", prepare yourself!");
-        }
-
-        var stats = p.getPlayerStats();
-
-        while (stats.getHealthPoints() > 0 && e.getHealthPoints() > 0) {
-
-            UserInterface.printPlayerHUD(p, e);
-
-            while (choice != 'a' && choice != 'b') {
-                choice = userInput.next().charAt(0);
-                if (choice != 'a' && choice != 'b') {
-                    System.out.println("Please choose the appropriate choice.");
-                }
-            }
-
-            switch (choice) {
-                case 'a':
-                    AttackOutcome outcome = p.physicalAttack(e, poison);
-                    break;
-                case 'b': {
-                    switch (p.showAndSelectAbilityDuringBattle(p, userInput)) {
-                        case '0': {
-                            poison = p.useFirstSlotAbility(e);
-                        }
-                        break;
-                        case '1': {
-                            p.useSecondSlotAbility(p, e);
-                        }
-                        break;
-                        case '2': {
-                            disabledByPlayer = p.useThirdSlotAbility(p, e);
-                        }
-                        break;
-                        case '3': {
-                            p.useFourthSlotAbility(p, e);
-                        }
-                        break;
-                    }
-                }
-            }
-
-            // enemy's turn
-            System.out.println("It is " + e.getName() + "'s turn!");
-            if (!disabledByPlayer) {
-                if (e.isBoss()) {
-                    switch (e.getName()) {
-                        case "Spectre": {
-                            if (turns == 0) {
-                                System.out.println("Spectre throws demonic flames from his sickle\nAnd does: "
-                                        + e.calculateAndApplyDamage(p.getPlayerStats(), 15)
-                                        + " damage.");
-                                turns = 5;
-                            } else {
-                                System.out.println("Spectre attacks you and does: " + e.calculateAndApplyDamage(p.getPlayerStats(), 0) + " damage.");
-                            }
-                        }
-                        break;
-                        case ZORAM: {
-                            if (turns == 0) {
-                                System.out.println("The sorceror Zoram uses his healing abilities. His health increases by 50.");
-                                e.setHealthPoints(e.getHealthPoints() + 50);
-                            } else {
-                                System.out.println("The sorceror Zoram attacks you and does: " + e.calculateAndApplyDamage(p.getPlayerStats(), 0) + " damage.");
-                            }
-                        }
-                        break;
-                    }
-                } else {
-                    System.out.println(e.getName() + " attacks you and does " + e.calculateAndApplyDamage(p.getPlayerStats(), 0) + " damage\n");
-                }
-
-                if (turns >= 0) {
-                    turns--;
-                }
-            } else {
-                System.out.println("Enemy is disabled for this turn.");
-                disabledByPlayer = false;
-            }
-            choice = ' ';
-        }
-        if (stats.getHealthPoints() <= 0) {
-            System.out.println("Battle ended! You died.");
-            System.out.println("GAME OVER");
-            System.exit(0);
-        }
-        if (e.getName().equals(ZORAM)) {
-            System.out.println("You defeated the evil" + e.getName() + " and won " + e.getExpAmountWhenKilled() + " EXP");
-            System.out.println("His reign ends here!\nCongratulations " + p.getPlayerInformation().name() + "!\nYou truly are remarkable!");
-            Game.zoramUndefeated = false;
-        } else {
-            System.out.println("You defeated " + e.getName() + " and won " + e.getExpAmountWhenKilled() + " EXP");
-        }
-        stats.setHealthPoints(stats.getHealthPoints() + 10);
-        stats.setManaPoints(stats.getManaPoints() + 10);
-        p.getBattleRewards(e.getExpAmountWhenKilled());
-    }
-
 }

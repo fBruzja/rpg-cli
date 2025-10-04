@@ -16,7 +16,6 @@ import com.rpg.game.outcome.AbilityOutcome;
 import com.rpg.game.outcome.AttackOutcome;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -191,6 +190,7 @@ public class Player {
 
         refreshSkills();
 
+        // TODO: do something with the messages after leveling up. Send them to UI?
         var learnMessages = learnAndAutoEquipNewAbilities(playerProfession, level);
     }
 
