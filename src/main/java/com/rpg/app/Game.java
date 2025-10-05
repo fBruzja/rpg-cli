@@ -33,52 +33,16 @@ public class Game {
 
     void startGame() {
 
-        String name;
-        char profession, playerChoice = ' ';
         Player player = null;
         SaveData data;
-        profession = '0';
-
 
         UserInterface.showIntro();
 
-        while (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
-            playerChoice = userInput.next().charAt(0);
-            if (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
-                System.out.println("\nPlease enter '1', '2' or '3'");
-            }
-        }
+        char playerChoice = UserInterface.readMainMenuChoice();
 
         switch (playerChoice) {
             case '1': {
-                playerChoice = ' ';
-                System.out.print("\nTell us about yourself...\nWhat is your name traveler?\n");
-                name = userInput.next();
-                userInput.reset();
-
-                System.out.print("\n\nWhat do you consider yourself?\nA fighter, a rogue or a magical user?");
-                System.out.print("\n'w' for fighter\n't' for an agility dependant user\n'm' for a magic user\n");
-                userInput.reset();
-                while (profession != 'w' && profession != 't' && profession != 'm') {
-                    profession = userInput.next().charAt(0);
-                    if (profession != 'w' && profession != 't' && profession != 'm') {
-                        System.out.println("Please enter 'w', 't' or 'm'");
-                    }
-                }
-
-                switch (profession) {
-                    case 'w':
-                        System.out.print("\nAh so you are a warrior! You will find the fights you desire here then.\n");
-                        break;
-                    case 't':
-                        System.out.print("\nA thief i see... May the shadows hide you.\n");
-                        break;
-                    case 'm':
-                        System.out.print("\nA pupil of the arcane arts... You will find Zoram rather intriguing then!\n");
-                        break;
-                }
-
-                player = new Player(name, profession);
+                player = Player.createNewPlayer();
             }
             break;
             case '2': {
@@ -87,7 +51,8 @@ public class Game {
                     log.info("Character load failed");
                 } else {
                     var playerInfo = data.getPlayerInformation();
-                    player = new Player(playerInfo.name(), profession);
+                    // todo: will need to be revamped just a little bit
+                    player = new Player(playerInfo.name(), playerInfo.profession().name().charAt(0));
                     ResourceManager.loadTheDataInThePlayer(data, player);
                     System.out.println("\n\tGAME LOADED");
                 }

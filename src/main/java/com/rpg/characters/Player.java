@@ -14,6 +14,7 @@ import com.rpg.characters.data.Stats;
 import com.rpg.game.AttackBonusType;
 import com.rpg.game.outcome.AbilityOutcome;
 import com.rpg.game.outcome.AttackOutcome;
+import com.rpg.userinterface.UserInterface;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -278,6 +279,13 @@ public class Player {
 
     public PlayerAbilities abilitiesFacade() {
         return playerAbilities;
+    }
+
+    public static Player createNewPlayer() {
+        String name = UserInterface.readPlayerName();
+        char profession = UserInterface.readPlayerProfession();
+
+        return new Player(name, profession);
     }
 
 }

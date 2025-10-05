@@ -73,6 +73,52 @@ public class UserInterface {
         GameLogger.print("'a' for attack\n'b' for abilities\n");
     }
 
+    public static char readMainMenuChoice() {
+        char playerChoice = ' ';
+        while (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
+            playerChoice = userInput.next().charAt(0);
+            if (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
+                renderMessages(List.of("\nPlease enter '1', '2' or '3'"));
+            }
+        }
+        return playerChoice;
+    }
+
+    public static String readPlayerName() {
+        renderMessages(java.util.List.of(
+                "Tell us about yourself...",
+                "What is your name, traveler?"
+        ));
+        String name = userInput.next();
+        if (name.isBlank() || name.length() > 30) {
+            renderMessages(List.of("Please enter a valid name. It must be between 1 and 30 characters long."));
+            return readPlayerName();
+        }
+        userInput.reset();
+        return name;
+    }
+
+    public static char readPlayerProfession() {
+        renderMessages(java.util.List.of(
+                "What do you consider yourself?",
+                "'w' for warrior, 't' for a thief, 'm' for mage"
+        ));
+
+        char profession = ' ';
+
+        String in = UserInterface.userInput.next();
+        if (in != null && !in.isEmpty()) {
+            profession = in.charAt(0);
+        }
+        if (profession != 'w' && profession != 'W'
+                && profession != 't' && profession != 'T'
+                && profession != 'm' && profession != 'M') {
+            renderMessages(List.of("Please enter 'w', 't' or 'm'."));
+            return readPlayerProfession();
+        }
+        return profession;
+    }
+
     public static PlayerFightDecision askPlayerForActionInTurn() {
         char choice = ' ';
 
