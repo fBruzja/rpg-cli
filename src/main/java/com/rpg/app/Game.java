@@ -6,6 +6,7 @@ import com.rpg.datamanagement.ResourceManager;
 import com.rpg.datamanagement.data.SaveData;
 import com.rpg.game.BattleController;
 import com.rpg.game.outcome.BattleResult;
+import com.rpg.map.Coordinates;
 import com.rpg.map.Map;
 import com.rpg.userinterface.UserInterface;
 import java.util.List;
@@ -20,12 +21,14 @@ public class Game {
     public static Scanner userInput = new Scanner(System.in);
     public static boolean zoramUndefeated = true;
     private final BattleController battleController;
-    private List<Enemy> enemiesList;
+    private final List<Enemy> enemiesList;
     public static boolean GAME_OVER = false;
+    Map map;
 
     public Game() {
         battleController = new BattleController();
         enemiesList = getEnemiesList();
+        map = new Map();
     }
 
     void startGame() {
@@ -98,9 +101,6 @@ public class Game {
         }
 
         userInput.reset();
-        // generate map
-
-        Map map = new Map();
 
         assert player != null; // TODO: deal with it differently than just an assertion
 
@@ -207,58 +207,36 @@ public class Game {
         return null;
     }
 
-
     void manageMovement(Player p, Map map, char movement) {
-        var xPosition = p.getPlayerPosition().getX();
-        var yPosition = p.getPlayerPosition().getY();
+        int x = p.getPlayerPosition().getX();
+        int y = p.getPlayerPosition().getY();
 
-        switch (movement) {
-            case 'w': {
-                if (map.checkIfOutOfBoundaries(xPosition - 1, yPosition)) {
-                    char encounter = map.checkForEncounter(xPosition - 1, yPosition);
-                    manageEncounter(encounter, p, xPosition - 1, yPosition);
-                    map.updateMap(xPosition - 1, yPosition, movement);
-                    p.move(movement);
-                } else {
-                    // TODO: maybe not needed. Just let them hit a wall come on.
-                    System.out.println("We cannot move out of the boundaries of our little universe, can we?");
-                }
-            }
-            break;
-            case 'a': {
-                if (map.checkIfOutOfBoundaries(xPosition, yPosition - 1)) {
-                    char encounter = map.checkForEncounter(xPosition, yPosition - 1);
-                    manageEncounter(encounter, p, xPosition, yPosition - 1);
-                    map.updateMap(xPosition, yPosition - 1, movement);
-                    p.move(movement);
-                } else {
-                    System.out.println("We cannot move out of the boundaries of our little universe, can we?");
-                }
-            }
-            break;
-            case 'd': {
-                if (map.checkIfOutOfBoundaries(xPosition, yPosition + 1)) {
-                    char encounter = map.checkForEncounter(xPosition, yPosition + 1);
-                    manageEncounter(encounter, p, xPosition, yPosition + 1);
-                    map.updateMap(xPosition, yPosition + 1, movement);
-                    p.move(movement);
-                } else {
-                    System.out.println("We cannot move out of the boundaries of our little universe, can we?");
-                }
-            }
-            break;
-            case 's': {
-                if (map.checkIfOutOfBoundaries(xPosition + 1, yPosition)) {
-                    char encounter = map.checkForEncounter(xPosition + 1, yPosition);
-                    manageEncounter(encounter, p,xPosition + 1, yPosition);
-                    map.updateMap(xPosition + 1, yPosition, movement);
-                    p.move(movement);
-                } else {
-                    System.out.println("We cannot move out of the boundaries of our little universe, can we?");
-                }
-            }
-            break;
+        Coordinates target = computeTargetCoordinates(x, y, movement);
+        if (target == null) {
+            UserInterface.renderMessages(java.util.List.of("Unknown movement. Use w/a/s/d."));
+            return;
         }
+
+        if (!map.checkIfOutOfBoundaries(target.x(), target.y())) {
+            UserInterface.renderMessages(java.util.List.of("You cannot move there."));
+            return;
+        }
+
+        char encounter = map.checkForEncounter(target.x(), target.y());
+        manageEncounter(encounter, p, target.x(), target.y());
+
+        map.updateMap(target.x(), target.y(), movement);
+        p.move(movement);
+    }
+
+    private Coordinates computeTargetCoordinates(int x, int y, char movement) {
+        return switch (movement) {
+            case 'w' -> new Coordinates(x - 1, y);
+            case 'a' -> new Coordinates(x, y - 1);
+            case 'd' -> new Coordinates(x, y + 1);
+            case 's' -> new Coordinates(x + 1, y);
+            default -> null;
+        };
     }
 
     public void manageEncounter(char encounter, Player player, int enemyPositionX, int enemyPositionY) {

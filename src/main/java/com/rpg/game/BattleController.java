@@ -101,17 +101,16 @@ public class BattleController {
     public void executeEnemyTurn(Player player, Enemy enemy) {
         if (enemyDisabledNextTurn) {
             UserInterface.renderMessages(java.util.List.of("Enemy is disabled this turn."));
-            enemyDisabledNextTurn = false; // consume the disable
+            enemyDisabledNextTurn = false;
             // Still tick cooldowns to keep pacing consistent across turns
             player.abilitiesFacade().tickTurnEnd();
             return;
         }
 
-        // TODO:
-        // Perform enemy action (existing logic)
-        // Example placeholder – keep my existing enemy attack flow here
-        // int damage = enemy.calculateAndApplyDamage(player.getPlayerStats(), 0);
-        // UserInterface.renderMessages(java.util.List.of(enemy.getName() + " attacks for " + damage + " damage."));
+        int damage = enemy.calculateAndApplyDamage(player.getPlayerStats(), 0);
+        UserInterface.renderMessages(java.util.List.of(
+                enemy.getName() + " attacks and deals " + damage + " damage."
+        ));
 
         // End-of-enemy-turn cooldown tick
         player.abilitiesFacade().tickTurnEnd();
