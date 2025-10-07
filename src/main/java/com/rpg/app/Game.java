@@ -8,17 +8,13 @@ import com.rpg.game.BattleController;
 import com.rpg.game.outcome.BattleResult;
 import com.rpg.map.Coordinates;
 import com.rpg.map.Map;
+import com.rpg.userinterface.MainCommand;
+import com.rpg.userinterface.PlayerChoiceCommand;
 import com.rpg.userinterface.UserInterface;
 import java.util.List;
-import java.util.Scanner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Game {
-
-    private static final Logger log = LoggerFactory.getLogger(Game.class);
     public static final String ZORAM = "Zoram";
-    public static Scanner userInput = new Scanner(System.in);
     public static boolean zoramUndefeated = true;
     private final BattleController battleController;
     private final List<Enemy> enemiesList;
@@ -38,17 +34,17 @@ public class Game {
 
         UserInterface.showIntro();
 
-        char playerChoice = UserInterface.readMainMenuChoice();
+        PlayerChoiceCommand playerChoice = UserInterface.readMainMenuChoice();
 
         switch (playerChoice) {
-            case '1': {
+            case NEW_GAME: {
                 player = Player.createNewPlayer();
             }
             break;
-            case '2': {
+            case LOAD: {
                 data = (SaveData) ResourceManager.load("../saves/character.save");
                 if (data == null) {
-                    log.info("Character load failed");
+                    UserInterface.renderMessages(List.of("Character load failed"));
                 } else {
                     var playerInfo = data.getPlayerInformation();
                     // todo: will need to be revamped just a little bit
@@ -58,14 +54,11 @@ public class Game {
                 }
             }
             break;
-            case '3': {
-                System.out.println("Until next time!");
-                System.exit(0);
+            case QUIT: {
+                exitGame();
             }
             break;
         }
-
-        userInput.reset();
 
         assert player != null; // TODO: deal with it differently than just an assertion
 
@@ -78,53 +71,18 @@ public class Game {
         while (Game.zoramUndefeated && !GAME_OVER) {
             map.printMap();
             UserInterface.showMenu();
-            userInput.reset();
 
-            while (playerChoice != 'w'
-                    && playerChoice != 'a'
-                    && playerChoice != 'd'
-                    && playerChoice != 's'
-                    && playerChoice != 'i'
-                    && playerChoice != 'v'
-                    && playerChoice != 'q') {
-                playerChoice = userInput.next().charAt(0);
-                if (playerChoice != 'w'
-                        && playerChoice != 'a'
-                        && playerChoice != 'd'
-                        && playerChoice != 's'
-                        && playerChoice != 'i'
-                        && playerChoice != 'v'
-                        && playerChoice != 'q') {
-                    System.out.println("Please enter the appropriate choice.");
-                }
-            }
+            MainCommand cmd = UserInterface.readMainLoopCommand();
 
-            switch (playerChoice) {
-                case 'w': {
-                    manageMovement(player, map, 'w');
-                }
-                break;
-                case 'a': {
-                    manageMovement(player, map, 'a');
-                }
-                break;
-                case 'd': {
-                    manageMovement(player, map, 'd');
-                }
-                break;
-                case 's': {
-                    manageMovement(player, map, 's');
-                }
-                break;
-                case 'i':
+            switch (cmd) {
+                case SHOW_STATS:
                     UserInterface.showStats(player);
                     break;
-                case 'q': {
-                    System.out.println("Until next time!");
-                    System.exit(0);
+                case QUIT: {
+                    exitGame();
                 }
                 break;
-                case 'v': {
+                case SAVE: {
                     data = ResourceManager.createSaveData(player);
                     try {
                         ResourceManager.save(data, "../saves/character.save");
@@ -133,9 +91,16 @@ public class Game {
                         System.out.println("Could not save: " + e.getMessage());
                     }
                 }
+                break;
+                case MOVE_UP:
+                case MOVE_LEFT:
+                case MOVE_RIGHT:
+                case MOVE_DOWN: {
+                    char moveKey = cmd.key();
+                    manageMovement(player, map, moveKey);
+                }
+                break;
             }
-
-            playerChoice = ' ';
         }
 
         if (!Game.zoramUndefeated) {
@@ -143,7 +108,11 @@ public class Game {
             System.out.println("Hopefully you will retake this adventure again!\nExiting...");
             System.exit(0);
         }
-        userInput.close();
+    }
+
+    private static void exitGame() {
+        UserInterface.renderMessages(List.of("Until next time!"));
+        System.exit(0);
     }
 
     private static List<Enemy> getEnemiesList() {

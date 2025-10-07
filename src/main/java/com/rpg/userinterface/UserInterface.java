@@ -73,15 +73,20 @@ public class UserInterface {
         GameLogger.print("'a' for attack\n'b' for abilities\n");
     }
 
-    public static char readMainMenuChoice() {
-        char playerChoice = ' ';
-        while (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
-            playerChoice = userInput.next().charAt(0);
-            if (playerChoice != '1' && playerChoice != '2' && playerChoice != '3') {
-                renderMessages(List.of("\nPlease enter '1', '2' or '3'"));
+    public static PlayerChoiceCommand readMainMenuChoice() {
+        while (true) {
+            String in = userInput.next();
+            if (in == null || in.isEmpty()) {
+                renderMessages(List.of("Please enter a command."));
+                continue;
             }
+            char c = in.charAt(0);
+            var cmd = PlayerChoiceCommand.fromChar(c);
+            if (cmd.isPresent()) {
+                return cmd.get();
+            }
+            renderMessages(List.of("Please enter one of: 1/2/3"));
         }
-        return playerChoice;
     }
 
     public static String readPlayerName() {
@@ -169,6 +174,22 @@ public class UserInterface {
     public static void printPreBattleIntro(String enemyName) {
         GameLogger.print("----- BATTLE -----");
         GameLogger.print("You have stumbled upon a " + enemyName + ", prepare yourself!");
+    }
+
+    public static MainCommand readMainLoopCommand() {
+        while (true) {
+            String in = userInput.next();
+            if (in == null || in.isEmpty()) {
+                renderMessages(List.of("Please enter a command."));
+                continue;
+            }
+            char c = in.charAt(0);
+            var cmd = MainCommand.fromChar(c);
+            if (cmd.isPresent()) {
+                return cmd.get();
+            }
+            renderMessages(List.of("Please enter one of: w/a/s/d/i/v/q"));
+        }
     }
 
 }
