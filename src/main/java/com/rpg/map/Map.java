@@ -34,14 +34,10 @@ public class Map {
 		}
 	}
 
-	public void putPlayerInGameMap(int x, int y) {
-		gameMap[x][y] = 'X';
+	public void putEntityInMap(int x, int y, char entity) {
+		gameMap[x][y] = entity;
 	}
-	
-	public void bringMonsterToMap(int x, int y, char monster) {
-        gameMap[x][y] = monster;
-	}
-	
+
 	public void printMap() {
 		for(int i=0; i < gameMap[0].length; i++) {
 			for(int j=0; j < gameMap[i].length; j++) {
@@ -74,8 +70,8 @@ public class Map {
 		gameMap[newX][newY] = 'X';
 	}
 
-	// TODO: encounters feel wonky. Perhaps handle them differently (were handled differently, need testing)
-	public char checkForEncounter(int x, int y) {
+	// TODO: encounters feel wonky. Perhaps handle them differently
+	public char checkTile(int x, int y) {
         return gameMap[x][y];
 	}
 }

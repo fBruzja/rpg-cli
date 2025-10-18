@@ -5,26 +5,34 @@ import com.rpg.characters.Player;
 import com.rpg.datamanagement.ResourceManager;
 import com.rpg.datamanagement.data.SaveData;
 import com.rpg.game.BattleController;
+import com.rpg.game.GameState;
+import com.rpg.game.MovementController;
 import com.rpg.game.outcome.BattleResult;
-import com.rpg.map.Coordinates;
+import com.rpg.game.outcome.MovementResult;
 import com.rpg.map.Map;
 import com.rpg.userinterface.MainCommand;
 import com.rpg.userinterface.PlayerChoiceCommand;
 import com.rpg.userinterface.UserInterface;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
+
     public static final String ZORAM = "Zoram";
-    public static boolean zoramUndefeated = true;
+    public static final char PLAYER_CHARACTER = 'X';
+
+    private final GameState gameState;
+    private final MovementController movementController;
     private final BattleController battleController;
     private final List<Enemy> enemiesList;
-    public static boolean GAME_OVER = false;
     Map map;
 
     public Game() {
-        battleController = new BattleController();
-        enemiesList = getEnemiesList();
         map = new Map();
+        this.gameState = new GameState();
+        battleController = new BattleController();
+        enemiesList = new ArrayList<>(getEnemiesList());
+        this.movementController = new MovementController(map);
     }
 
     void startGame() {
@@ -60,15 +68,15 @@ public class Game {
             break;
         }
 
-        assert player != null; // TODO: deal with it differently than just an assertion
-
-        map.putPlayerInGameMap(player.getPlayerPosition().getX(), player.getPlayerPosition().getY());
-        for (Enemy enemy : enemiesList) {
-            map.bringMonsterToMap(enemy.getXPosition(), enemy.getYPosition(), enemy.getIcon());
+        if (player == null) {
+            UserInterface.renderMessages(List.of("Failed to initialize player. Exiting..."));
+            return;
         }
 
+        putCharacterAndNpcsIntoMap(player);
+
         // the game begins
-        while (Game.zoramUndefeated && !GAME_OVER) {
+        while (gameState.shouldContinue()) {
             map.printMap();
             UserInterface.showMenu();
 
@@ -97,16 +105,59 @@ public class Game {
                 case MOVE_RIGHT:
                 case MOVE_DOWN: {
                     char moveKey = cmd.key();
-                    manageMovement(player, map, moveKey);
+                    handleMovement(player, moveKey);
                 }
                 break;
             }
         }
 
-        if (!Game.zoramUndefeated) {
-            System.out.println("You Win!");
-            System.out.println("Hopefully you will retake this adventure again!\nExiting...");
-            System.exit(0);
+        if (gameState.isZoramDefeated()) {
+            UserInterface.renderMessages(List.of("You have defeated Zoram!", "Hopefully you will retake this adventure again!\nExiting..."));
+            exitGame();
+        }
+    }
+
+    private void handleMovement(Player player, char movement) {
+        MovementResult result = movementController.attemptMove(player, movement);
+
+        if (!result.isSuccessful()) {
+            UserInterface.renderMessages(List.of(result.getMessage()));
+            return;
+        }
+
+        if (result.hasEncounter()) {
+            handleEncounter(player, result.getTargetCoordinates());
+        }
+    }
+
+    private void handleEncounter(Player player, com.rpg.map.Coordinates coordinates) {
+        Enemy enemy = movementController.findEnemyAt(coordinates.x(), coordinates.y(), enemiesList);
+
+        if (enemy == null) {
+            return; // No enemy found
+        }
+
+        BattleResult battleResult = battleController.runBattle(player, enemy);
+
+        if (battleResult.playerDied()) {
+            gameState.triggerGameOver();
+        }
+
+        if (battleResult.enemyDied()) {
+            enemiesList.remove(enemy);
+
+            if (ZORAM.equals(enemy.getName())) {
+                gameState.defeatZoram();
+            }
+
+            UserInterface.renderMessages(battleResult.messages());
+        }
+    }
+
+    private void putCharacterAndNpcsIntoMap(Player player) {
+        map.putEntityInMap(player.getPlayerPosition().getX(), player.getPlayerPosition().getY(), PLAYER_CHARACTER);
+        for (Enemy enemy : enemiesList) {
+            map.putEntityInMap(enemy.getXPosition(), enemy.getYPosition(), enemy.getIcon());
         }
     }
 
@@ -117,18 +168,18 @@ public class Game {
 
     private static List<Enemy> getEnemiesList() {
         return List.of(
-                new Enemy(20, 20, 5, 2,'G', "Goblin"),
-                new Enemy(20, 20, 5, 2,'G', "Goblin"),
-                new Enemy(25, 20, 6, 3,'S', "Skeleton"),
-                new Enemy(25, 20, 6, 3,'S', "Skeleton"),
-                new Enemy(23, 30, 5, 4,'R', "Rat-Man"),
-                new Enemy(23, 30, 5, 4,'R', "Rat-Man"),
-                new Enemy(35, 40, 6, 5,'D', "Salamander"),
-                new Enemy(35, 40, 6, 5,'D', "Salamander"),
-                new Enemy(30, 35, 6, 5,'K', "Kobold"),
-                new Enemy(30, 35, 6, 5,'K', "Kobold"),
-                new Enemy(35, 100, 7, 5,'P', "Spectre"),
-                new Enemy(70, 100, 10, 10,'Z', ZORAM)
+                new Enemy(20, 20, 5, 2, 'G', "Goblin"),
+                new Enemy(20, 20, 5, 2, 'G', "Goblin"),
+                new Enemy(25, 20, 6, 3, 'S', "Skeleton"),
+                new Enemy(25, 20, 6, 3, 'S', "Skeleton"),
+                new Enemy(23, 30, 5, 4, 'R', "Rat-Man"),
+                new Enemy(23, 30, 5, 4, 'R', "Rat-Man"),
+                new Enemy(35, 40, 6, 5, 'D', "Salamander"),
+                new Enemy(35, 40, 6, 5, 'D', "Salamander"),
+                new Enemy(30, 35, 6, 5, 'K', "Kobold"),
+                new Enemy(30, 35, 6, 5, 'K', "Kobold"),
+                new Enemy(35, 100, 7, 5, 'P', "Spectre"),
+                new Enemy(70, 100, 10, 10, 'Z', ZORAM)
         );
     }
 
@@ -141,50 +192,4 @@ public class Game {
         return null;
     }
 
-    void manageMovement(Player p, Map map, char movement) {
-        int x = p.getPlayerPosition().getX();
-        int y = p.getPlayerPosition().getY();
-
-        Coordinates target = computeTargetCoordinates(x, y, movement);
-        if (target == null) {
-            UserInterface.renderMessages(java.util.List.of("Unknown movement. Use w/a/s/d."));
-            return;
-        }
-
-        if (!map.checkIfOutOfBoundaries(target.x(), target.y())) {
-            UserInterface.renderMessages(java.util.List.of("You cannot move there."));
-            return;
-        }
-
-        char encounter = map.checkForEncounter(target.x(), target.y());
-        manageEncounter(encounter, p, target.x(), target.y());
-
-        map.updateMap(target.x(), target.y(), movement);
-        p.move(movement);
-    }
-
-    private Coordinates computeTargetCoordinates(int x, int y, char movement) {
-        return switch (movement) {
-            case 'w' -> new Coordinates(x - 1, y);
-            case 'a' -> new Coordinates(x, y - 1);
-            case 'd' -> new Coordinates(x, y + 1);
-            case 's' -> new Coordinates(x + 1, y);
-            default -> null;
-        };
-    }
-
-    public void manageEncounter(char encounter, Player player, int enemyPositionX, int enemyPositionY) {
-        if (encounter != ' ') {
-            Enemy enemyConfronted = checkWhichEnemy(enemyPositionX, enemyPositionY, enemiesList);
-            BattleResult battleResult = battleController.runBattle(player, enemyConfronted);
-
-            if(battleResult.playerDied()) {
-                GAME_OVER = true;
-            }
-
-            if(battleResult.enemyDied()) {
-                UserInterface.renderMessages(battleResult.messages());
-            }
-        }
-    }
 }
