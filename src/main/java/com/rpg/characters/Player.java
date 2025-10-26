@@ -288,4 +288,25 @@ public class Player {
         return new Player(name, profession);
     }
 
+    public void setPlayerAbilities(PlayerAbilities abilities) {
+        // Learn all learned abilities
+        for (var abilityId : abilities.learned()) {
+            this.playerAbilities.learn(abilityId);
+        }
+
+        // Re-equip all equipped abilities
+        for (var entry : abilities.equippedView().entrySet()) {
+            this.playerAbilities.equip(entry.getKey(), entry.getValue());
+        }
+
+        // Copy ability states (cooldowns, charges, etc.)
+        for (var abilityId : abilities.learned()) {
+            var savedState = abilities.stateOf(abilityId);
+            var currentState = this.playerAbilities.stateOf(abilityId);
+            currentState.setCurrentCooldown(savedState.getCurrentCooldown());
+            currentState.setCurrentCharges(savedState.getCurrentCharges());
+            currentState.setOncePerBattleUsed(savedState.isOncePerBattleUsed());
+        }
+    }
+
 }

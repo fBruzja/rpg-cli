@@ -7,10 +7,6 @@ import com.rpg.map.Coordinates;
 import com.rpg.map.Map;
 import java.util.List;
 
-/**
- * Handles player movement, collision detection, and encounter triggering.
- * Separates movement logic from the main game loop.
- */
 public class MovementController {
 
     private final Map map;
@@ -48,14 +44,5 @@ public class MovementController {
             case 's' -> new Coordinates(x + 1, y);
             default -> null;
         };
-    }
-
-    public Enemy findEnemyAt(int x, int y, List<Enemy> enemies) {
-        for (Enemy enemy : enemies) {
-            if (x == enemy.getXPosition() && y == enemy.getYPosition()) {
-                return enemy;
-            }
-        }
-        return null;
     }
 }

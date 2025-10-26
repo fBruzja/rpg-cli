@@ -5,6 +5,7 @@ import com.rpg.characters.data.PersonalPlayerInformation;
 import com.rpg.characters.data.Position;
 import com.rpg.characters.data.Stats;
 import com.rpg.datamanagement.data.SaveData;
+import com.rpg.game.EnemyManager;
 import com.rpg.utils.GameLogger;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -41,7 +42,7 @@ public class ResourceManager {
         return null;
     }
 
-    public static SaveData createSaveData(Player pl) {
+    public static SaveData createSaveData(Player pl, EnemyManager enemyManager) {
         var playerInfo = pl.getPlayerInformation();
         var playerPosition = pl.getPlayerPosition();
 
@@ -51,9 +52,10 @@ public class ResourceManager {
         return SaveData.builder()
                 .playerInformation(playerInformation)
                 .stats(getStats(pl))
-                .abilities(pl.getAbilities())
+                .abilities(pl.abilitiesFacade())
                 .level(pl.getLevel())
                 .position(position)
+                .enemyManager(enemyManager)
                 .build();
     }
 
@@ -89,7 +91,11 @@ public class ResourceManager {
         var position = new Position(s.getPosition().getX(), s.getPosition().getY());
 
         p.setPlayerStats(stats);
-        p.setAbilities(s.getAbilities());
+
+        if (s.getAbilities() != null) {
+            p.setPlayerAbilities(s.getAbilities());
+        }
+
         p.setPlayerPosition(position);
         p.setLevel(s.getLevel());
     }

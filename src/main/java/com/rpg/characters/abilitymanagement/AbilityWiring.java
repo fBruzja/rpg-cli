@@ -21,20 +21,20 @@ public final class AbilityWiring {
         Map<AbilityId, Ability> logic = Map.ofEntries(
                 // SLOT_1 starters
                 Map.entry(AbilityId.POWER_ATTACK, new PowerAttackAbility()),
-                AbilityId.POISONED_DAGGER, new PoisonedDaggerAbility(),
-                AbilityId.FIREBALL, new FireballAbility(),
+                Map.entry(AbilityId.POISONED_DAGGER, new PoisonedDaggerAbility()),
+                Map.entry(AbilityId.FIREBALL, new FireballAbility()),
                 // SLOT_2 (level 3 unlocks)
-                AbilityId.HEALING_SALVE, new HealingSalveAbility(),
-                AbilityId.CRITICAL_STRIKE, new CriticalStrikeAbility(),
-                AbilityId.ELECTROCUTE, new ElectrocuteAbility(),
+                Map.entry(AbilityId.HEALING_SALVE, new HealingSalveAbility()),
+                Map.entry(AbilityId.CRITICAL_STRIKE, new CriticalStrikeAbility()),
+                Map.entry(AbilityId.ELECTROCUTE, new ElectrocuteAbility()),
                 // SLOT_3
-                AbilityId.CHARGE, new ChargeAbility(),
-                AbilityId.WITHER, new WitherAbility(),
-                AbilityId.DEGEN_AURA, new DegenAuraAbility(),
+                Map.entry(AbilityId.CHARGE, new ChargeAbility()),
+                Map.entry(AbilityId.WITHER, new WitherAbility()),
+                Map.entry(AbilityId.DEGEN_AURA, new DegenAuraAbility()),
                 // SLOT_4
-                AbilityId.BEST_DEFENSE, new BestDefenseAbility(),
-                AbilityId.COUP_DE_GRACE, new CoupDeGraceAbility(),
-                AbilityId.DEATH_DOME, new DeathDomeAbility()
+                Map.entry(AbilityId.BEST_DEFENSE, new BestDefenseAbility()),
+                Map.entry(AbilityId.COUP_DE_GRACE, new CoupDeGraceAbility()),
+                Map.entry(AbilityId.DEATH_DOME, new DeathDomeAbility())
         );
         return new AbilityExecutor(logic);
     }

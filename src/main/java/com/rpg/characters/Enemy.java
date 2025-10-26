@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Enemy {
+public class Enemy{
 
     /* Monsters have only stats */
     int healthPoints;
@@ -39,6 +39,28 @@ public class Enemy {
         Random rand = new Random();
         this.xPosition = rand.nextInt((37 - 1) + 1) + 1;
         this.yPosition = rand.nextInt((37 - 1) + 1) + 1;
+    }
+
+    public Enemy(
+            int healthPoints,
+            int expAmountWhenKilled,
+            int attackPower,
+            int defense,
+            int xPosition,
+            int yPosition,
+            char icon,
+            String name,
+            boolean isBoss
+    ) {
+        this.healthPoints = healthPoints;
+        this.expAmountWhenKilled = expAmountWhenKilled;
+        this.attackPower = attackPower;
+        this.defense = defense;
+        this.xPosition = xPosition;
+        this.yPosition = yPosition;
+        this.icon = icon;
+        this.name = name;
+        this.isBoss = isBoss;
     }
 
     public int calculateAndApplyDamage(Stats playerStats, int specialFactor) {

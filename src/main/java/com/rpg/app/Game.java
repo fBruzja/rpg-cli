@@ -5,6 +5,8 @@ import com.rpg.characters.Player;
 import com.rpg.datamanagement.ResourceManager;
 import com.rpg.datamanagement.data.SaveData;
 import com.rpg.game.BattleController;
+import com.rpg.game.EnemyFactory;
+import com.rpg.game.EnemyManager;
 import com.rpg.game.GameState;
 import com.rpg.game.MovementController;
 import com.rpg.game.outcome.BattleResult;
@@ -13,7 +15,6 @@ import com.rpg.map.Map;
 import com.rpg.userinterface.MainCommand;
 import com.rpg.userinterface.PlayerChoiceCommand;
 import com.rpg.userinterface.UserInterface;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
@@ -24,15 +25,15 @@ public class Game {
     private final GameState gameState;
     private final MovementController movementController;
     private final BattleController battleController;
-    private final List<Enemy> enemiesList;
-    Map map;
+    private final Map map;
+    private final EnemyManager enemyManager;
 
     public Game() {
         map = new Map();
         this.gameState = new GameState();
         battleController = new BattleController();
-        enemiesList = new ArrayList<>(getEnemiesList());
         this.movementController = new MovementController(map);
+        this.enemyManager = new EnemyManager();
     }
 
     void startGame() {
@@ -47,6 +48,7 @@ public class Game {
         switch (playerChoice) {
             case NEW_GAME: {
                 player = Player.createNewPlayer();
+                enemyManager.spawnEnemies(EnemyFactory.createDefaultEnemies());
             }
             break;
             case LOAD: {
@@ -55,9 +57,16 @@ public class Game {
                     UserInterface.renderMessages(List.of("Character load failed"));
                 } else {
                     var playerInfo = data.getPlayerInformation();
-                    // todo: will need to be revamped just a little bit
                     player = new Player(playerInfo.name(), playerInfo.profession().name().charAt(0));
                     ResourceManager.loadTheDataInThePlayer(data, player);
+
+                    // Load saved enemy manager or create new if missing (backward compatibility)
+                    if (data.getEnemyManager() != null) {
+                        copyEnemyManagerState(data.getEnemyManager());
+                    } else {
+                        // Old save without enemy data - initialize defaults
+                        enemyManager.spawnEnemies(EnemyFactory.createDefaultEnemies());
+                    }
                     System.out.println("\n\tGAME LOADED");
                 }
             }
@@ -91,7 +100,7 @@ public class Game {
                 }
                 break;
                 case SAVE: {
-                    data = ResourceManager.createSaveData(player);
+                    data = ResourceManager.createSaveData(player, enemyManager);
                     try {
                         ResourceManager.save(data, "../saves/character.save");
                         System.out.println("Data saved successfully!");
@@ -131,7 +140,7 @@ public class Game {
     }
 
     private void handleEncounter(Player player, com.rpg.map.Coordinates coordinates) {
-        Enemy enemy = movementController.findEnemyAt(coordinates.x(), coordinates.y(), enemiesList);
+        Enemy enemy = enemyManager.findEnemyAt(coordinates.x(), coordinates.y());
 
         if (enemy == null) {
             return; // No enemy found
@@ -144,7 +153,7 @@ public class Game {
         }
 
         if (battleResult.enemyDied()) {
-            enemiesList.remove(enemy);
+            enemyManager.removeEnemy(enemy);
 
             if (ZORAM.equals(enemy.getName())) {
                 gameState.defeatZoram();
@@ -156,7 +165,7 @@ public class Game {
 
     private void putCharacterAndNpcsIntoMap(Player player) {
         map.putEntityInMap(player.getPlayerPosition().getX(), player.getPlayerPosition().getY(), PLAYER_CHARACTER);
-        for (Enemy enemy : enemiesList) {
+        for (Enemy enemy : enemyManager.getActiveEnemies()) {
             map.putEntityInMap(enemy.getXPosition(), enemy.getYPosition(), enemy.getIcon());
         }
     }
@@ -166,30 +175,8 @@ public class Game {
         System.exit(0);
     }
 
-    private static List<Enemy> getEnemiesList() {
-        return List.of(
-                new Enemy(20, 20, 5, 2, 'G', "Goblin"),
-                new Enemy(20, 20, 5, 2, 'G', "Goblin"),
-                new Enemy(25, 20, 6, 3, 'S', "Skeleton"),
-                new Enemy(25, 20, 6, 3, 'S', "Skeleton"),
-                new Enemy(23, 30, 5, 4, 'R', "Rat-Man"),
-                new Enemy(23, 30, 5, 4, 'R', "Rat-Man"),
-                new Enemy(35, 40, 6, 5, 'D', "Salamander"),
-                new Enemy(35, 40, 6, 5, 'D', "Salamander"),
-                new Enemy(30, 35, 6, 5, 'K', "Kobold"),
-                new Enemy(30, 35, 6, 5, 'K', "Kobold"),
-                new Enemy(35, 100, 7, 5, 'P', "Spectre"),
-                new Enemy(70, 100, 10, 10, 'Z', ZORAM)
-        );
-    }
-
-    public Enemy checkWhichEnemy(int x, int y, List<Enemy> enemies) {
-        for (Enemy enemy : enemies) {
-            if (x == enemy.getXPosition() && y == enemy.getYPosition()) {
-                return enemy;
-            }
-        }
-        return null;
+    private void copyEnemyManagerState(EnemyManager loadedManager) {
+        enemyManager.spawnEnemies(loadedManager.getActiveEnemies());
     }
 
 }

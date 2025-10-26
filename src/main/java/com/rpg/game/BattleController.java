@@ -91,13 +91,6 @@ public class BattleController {
         player.abilitiesFacade().tickTurnEnd();
     }
 
-    public void consumeEnemyDisableIfAny() {
-        // Call this at enemy turn start
-        if (enemyDisabledNextTurn) {
-            enemyDisabledNextTurn = false;
-        }
-    }
-
     public void executeEnemyTurn(Player player, Enemy enemy) {
         if (enemyDisabledNextTurn) {
             UserInterface.renderMessages(java.util.List.of("Enemy is disabled this turn."));
@@ -112,7 +105,6 @@ public class BattleController {
                 enemy.getName() + " attacks and deals " + damage + " damage."
         ));
 
-        // End-of-enemy-turn cooldown tick
         player.abilitiesFacade().tickTurnEnd();
     }
 

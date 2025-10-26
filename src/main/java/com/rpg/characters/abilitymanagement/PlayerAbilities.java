@@ -1,14 +1,19 @@
 package com.rpg.characters.abilitymanagement;
 
+import java.io.Serializable;
+import java.io.Serial;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class PlayerAbilities {
+public class PlayerAbilities implements Serializable {
 
-    private final Set<AbilityId> learned = EnumSet.noneOf(AbilityId.class);
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    public final Set<AbilityId> learned = EnumSet.noneOf(AbilityId.class);
     private final Map<AbilitySlot, AbilityId> equipped = new EnumMap<>(AbilitySlot.class);
     private final Map<AbilityId, AbilityState> state = new EnumMap<>(AbilityId.class);
 
