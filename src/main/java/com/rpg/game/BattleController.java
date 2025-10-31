@@ -36,8 +36,8 @@ public class BattleController {
                 break;
             }
         }
-        // TODO: write proper end battle messages depending on status
-        List<String> messages = List.of("Battle over!");
+
+        List<String> messages = createBattleEndMessages(playerDied, enemyDied, enemy);
 
         return new BattleResult(
                 playerDied,
@@ -128,5 +128,25 @@ public class BattleController {
             }
             UserInterface.renderMessages(List.of("Invalid choice. Enter 0, 1, 2, 3 or 'x' to cancel."));
         }
+    }
+
+    private List<String> createBattleEndMessages(boolean playerDied, boolean enemyDied, Enemy enemy) {
+        if (playerDied) {
+            return List.of(
+                    "You have been defeated!",
+                    "Game Over!"
+            );
+        }
+
+        if (enemyDied) {
+            return List.of(
+                    "Victory!",
+                    "You defeated the " + enemy.getName() + "!",
+                    "You gained " + enemy.getExpAmountWhenKilled() + " experience points!"
+            );
+        }
+
+        // this shouldn't happen, but just in case
+        return List.of("Battle ended inconclusively.");
     }
 }

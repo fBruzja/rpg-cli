@@ -142,6 +142,7 @@ public class Game {
     private void handleEncounter(Player player, com.rpg.map.Coordinates coordinates) {
         Enemy enemy = enemyManager.findEnemyAt(coordinates.x(), coordinates.y());
 
+        // checking just in case; this should never happen
         if (enemy == null) {
             return; // No enemy found
         }
@@ -150,17 +151,26 @@ public class Game {
 
         if (battleResult.playerDied()) {
             gameState.triggerGameOver();
+            return;
         }
 
         if (battleResult.enemyDied()) {
-            enemyManager.removeEnemy(enemy);
-
-            if (ZORAM.equals(enemy.getName())) {
-                gameState.defeatZoram();
-            }
-
-            UserInterface.renderMessages(battleResult.messages());
+            handleVictory(player, enemy, battleResult);
         }
+    }
+
+    private void handleVictory(Player player, Enemy defeatedEnemy, BattleResult battleResult) {
+        enemyManager.removeEnemy(defeatedEnemy);
+
+        if (battleResult.expGained() > 0) {
+            player.getBattleRewards(battleResult.expGained());
+        }
+
+        if (ZORAM.equals(defeatedEnemy.getName())) {
+            gameState.defeatZoram();
+        }
+
+        UserInterface.renderMessages(battleResult.messages());
     }
 
     private void putCharacterAndNpcsIntoMap(Player player) {
