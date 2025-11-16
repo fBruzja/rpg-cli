@@ -1,13 +1,18 @@
 package com.rpg.characters;
 
 import com.rpg.characters.data.Stats;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Random;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Enemy{
+public class Enemy implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /* Monsters have only stats */
     int healthPoints;

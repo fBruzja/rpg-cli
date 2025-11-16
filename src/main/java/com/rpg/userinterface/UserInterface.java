@@ -21,11 +21,18 @@ public class UserInterface {
                 This is the magical land of Marghor, ruled by the tyrannical sorcerer Zoram.
                 We bid you welcome!
                 
-                Since you accept the challenge to defeat Zoram (which main character doesn't?)
+                Since you accept the challenge to defeat Zoram.
                 You must choose...
+                
+                """);
+    }
+
+    public static void showIntroMenu() {
+        GameLogger.print("""
                     1) New Game
                     2) Continue
                     3) Exit
+                
                 """);
     }
 
@@ -148,9 +155,18 @@ public class UserInterface {
             return;
         }
         for (String msg : messages) {
-            GameLogger.print(msg);
+            renderMessages(msg);
         }
     }
+
+    public static void renderMessages(String message) {
+        if (message == null || message.isEmpty()) {
+            return;
+        }
+        GameLogger.print(message);
+    }
+
+    // TODO: have a method to handle showing errors
 
     public static void showEquippedAbilities(Player p) {
         var pa = p.abilitiesFacade();

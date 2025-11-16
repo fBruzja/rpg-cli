@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +24,15 @@ public class ResourceManager {
 
     private static final Logger log = LoggerFactory.getLogger(ResourceManager.class);
 
-    public static void save(Serializable data, String filename) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(filename)))) {
+    public static void save(Serializable data, String filename) throws IOException {
+        Path filePath = Paths.get(filename);
+
+        if (filePath.getParent() != null) {
+            Files.createDirectories(filePath.getParent());
+        }
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(filePath))) {
             oos.writeObject(data);
-        } catch (IOException exception) {
-            log.info(exception.getMessage());
         }
     }
 

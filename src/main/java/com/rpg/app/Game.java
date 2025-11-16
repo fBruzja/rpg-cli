@@ -22,6 +22,8 @@ public class Game {
     public static final String ZORAM = "Zoram";
     public static final char PLAYER_CHARACTER = 'X';
 
+    private static final String SAVE_FILE_PATH = "saves/character.save";
+
     private final GameState gameState;
     private final MovementController movementController;
     private final BattleController battleController;
@@ -42,44 +44,42 @@ public class Game {
         SaveData data;
 
         UserInterface.showIntro();
+        while (player == null) {
+            UserInterface.showIntroMenu();
 
-        PlayerChoiceCommand playerChoice = UserInterface.readMainMenuChoice();
+            PlayerChoiceCommand playerChoice = UserInterface.readMainMenuChoice();
 
-        switch (playerChoice) {
-            case NEW_GAME: {
-                player = Player.createNewPlayer();
-                enemyManager.spawnEnemies(EnemyFactory.createDefaultEnemies());
-            }
-            break;
-            case LOAD: {
-                data = (SaveData) ResourceManager.load("../saves/character.save");
-                if (data == null) {
-                    UserInterface.renderMessages(List.of("Character load failed"));
-                } else {
-                    var playerInfo = data.getPlayerInformation();
-                    player = new Player(playerInfo.name(), playerInfo.profession().name().charAt(0));
-                    ResourceManager.loadTheDataInThePlayer(data, player);
-
-                    // Load saved enemy manager or create new if missing (backward compatibility)
-                    if (data.getEnemyManager() != null) {
-                        copyEnemyManagerState(data.getEnemyManager());
-                    } else {
-                        // Old save without enemy data - initialize defaults
-                        enemyManager.spawnEnemies(EnemyFactory.createDefaultEnemies());
-                    }
-                    System.out.println("\n\tGAME LOADED");
+            switch (playerChoice) {
+                case NEW_GAME: {
+                    player = Player.createNewPlayer();
+                    enemyManager.spawnEnemies(EnemyFactory.createDefaultEnemies());
                 }
-            }
-            break;
-            case QUIT: {
-                exitGame();
-            }
-            break;
-        }
+                break;
+                case LOAD: {
+                    data = (SaveData) ResourceManager.load(SAVE_FILE_PATH);
+                    if (data == null) {
+                        UserInterface.renderMessages(List.of("Character load failed"));
+                    } else {
+                        var playerInfo = data.getPlayerInformation();
+                        player = new Player(playerInfo.name(), playerInfo.profession().name().charAt(0));
+                        ResourceManager.loadTheDataInThePlayer(data, player);
 
-        if (player == null) {
-            UserInterface.renderMessages(List.of("Failed to initialize player. Exiting..."));
-            return;
+                        // Load saved enemy manager or create new if missing (backward compatibility)
+                        if (data.getEnemyManager() != null) {
+                            copyEnemyManagerState(data.getEnemyManager());
+                        } else {
+                            // Old save without enemy data - initialize defaults
+                            enemyManager.spawnEnemies(EnemyFactory.createDefaultEnemies());
+                        }
+                        System.out.println("\n\tGAME LOADED");
+                    }
+                }
+                break;
+                case QUIT: {
+                    exitGame();
+                }
+                break;
+            }
         }
 
         putCharacterAndNpcsIntoMap(player);
@@ -102,10 +102,10 @@ public class Game {
                 case SAVE: {
                     data = ResourceManager.createSaveData(player, enemyManager);
                     try {
-                        ResourceManager.save(data, "../saves/character.save");
-                        System.out.println("Data saved successfully!");
+                        ResourceManager.save(data, SAVE_FILE_PATH);
+                        UserInterface.renderMessages("Data saved successfully!");
                     } catch (Exception e) {
-                        System.out.println("Could not save: " + e.getMessage());
+                        UserInterface.renderMessages("Could not save: " + e.getMessage());
                     }
                 }
                 break;

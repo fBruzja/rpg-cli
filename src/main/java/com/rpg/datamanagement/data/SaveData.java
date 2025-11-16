@@ -19,10 +19,10 @@ public class SaveData implements Serializable {
     @Serial
     private static final long serialVersionUID = -1L;
 
-    private  transient PersonalPlayerInformation playerInformation;
-    private transient Stats stats;
+    private PersonalPlayerInformation playerInformation;
+    private Stats stats;
     private PlayerAbilities abilities;
     private int level;
-    private transient Position position;
+    private Position position;
     private EnemyManager enemyManager;
 }
