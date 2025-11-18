@@ -20,6 +20,8 @@ public class BattleController {
         boolean playerDied = false;
         boolean enemyDied = false;
 
+        UserInterface.printPreBattleIntro(enemy.getName());
+
         // Battle loop
         while(player.getPlayerStats().getHealthPoints() > 0 && enemy.getHealthPoints() > 0) {
             executePlayerTurn(player, enemy);

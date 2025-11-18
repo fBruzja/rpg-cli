@@ -183,16 +183,17 @@ public class Player {
     public void levelUp() {
         setLevel(getLevel() + 1);
         playerStats.setExp(0);
+
         var playerProfession = playerInformation.profession();
 
-        playerStats.setStrength(playerStats.getStrength() + ((playerProfession == Profession.WARRIOR) ? 3 : 1));
-        playerStats.setAgility(playerStats.getAgility() + ((playerProfession == Profession.THIEF) ? 3 : 1));
-        playerStats.setIntelligence(playerStats.getIntelligence() + ((playerProfession == Profession.MAGE) ? 3 : 1));
+        playerStats.setStrength(playerStats.getStrength() + playerProfession.getStrengthBonus());
+        playerStats.setAgility(playerStats.getAgility() + playerProfession.getAgilityBonus());
+        playerStats.setIntelligence(playerStats.getIntelligence() + playerProfession.getIntelligenceBonus());
 
         refreshSkills();
 
-        // TODO: do something with the messages after leveling up. Send them to UI?
         var learnMessages = learnAndAutoEquipNewAbilities(playerProfession, level);
+        UserInterface.renderMessages(learnMessages);
     }
 
     private List<String> learnAndAutoEquipNewAbilities(Profession profession, int level) {
@@ -269,9 +270,9 @@ public class Player {
         playerStats.setExp(playerStats.getExp() + exp);
         if (playerStats.getExp() >= 50) {
             if (level == Player.MAX_LEVEL) {
-                System.out.println("You have achieved the maximum level of your abilities!");
+                UserInterface.renderMessages("You have achieved the maximum level of your abilities!");
             } else {
-                System.out.println("You have leveled up! Your basic attributes have grown stronger!");
+                UserInterface.renderMessages("You have leveled up! Your basic attributes have grown stronger!");
                 levelUp();
             }
         }

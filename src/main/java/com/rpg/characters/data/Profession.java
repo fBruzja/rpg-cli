@@ -13,4 +13,17 @@ public enum Profession {
     Profession(String displayName) {
         this.displayName = displayName;
     }
+
+    public int getStrengthBonus() {
+        return this == WARRIOR ? 3 : 1;
+    }
+
+    public int getAgilityBonus() {
+        return this == THIEF ? 3 : 1;
+    }
+
+    public int getIntelligenceBonus() {
+        return this == MAGE ? 3 : 1;
+    }
+
 }
