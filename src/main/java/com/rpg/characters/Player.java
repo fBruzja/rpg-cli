@@ -270,9 +270,9 @@ public class Player {
         playerStats.setExp(playerStats.getExp() + exp);
         if (playerStats.getExp() >= 50) {
             if (level == Player.MAX_LEVEL) {
-                UserInterface.renderMessages("You have achieved the maximum level of your abilities!");
+                UserInterface.renderMessage("You have achieved the maximum level of your abilities!");
             } else {
-                UserInterface.renderMessages("You have leveled up! Your basic attributes have grown stronger!");
+                UserInterface.renderMessage("You have leveled up! Your basic attributes have grown stronger!");
                 levelUp();
             }
         }

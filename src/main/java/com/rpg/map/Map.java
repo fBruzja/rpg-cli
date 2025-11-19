@@ -37,15 +37,6 @@ public class Map {
 	public void putEntityInMap(int x, int y, char entity) {
 		gameMap[x][y] = entity;
 	}
-
-	public void printMap() {
-		for(int i=0; i < gameMap[0].length; i++) {
-			for(int j=0; j < gameMap[i].length; j++) {
-				System.out.print(gameMap[i][j]);
-			}
-			System.out.println();
-		}
-	}
 	
 	public boolean checkIfOutOfBoundaries(int x, int y) {
         return gameMap[x][y] != '|' && gameMap[x][y] != '~' && gameMap[x][y] != '_';

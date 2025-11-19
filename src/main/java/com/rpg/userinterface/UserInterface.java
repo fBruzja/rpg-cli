@@ -6,6 +6,7 @@ import com.rpg.characters.abilitymanagement.AbilityRegistry;
 import com.rpg.characters.abilitymanagement.AbilitySlot;
 import com.rpg.characters.data.Stats;
 import com.rpg.game.PlayerFightDecision;
+import com.rpg.map.Map;
 import com.rpg.utils.GameLogger;
 import java.util.List;
 import java.util.Scanner;
@@ -14,8 +15,26 @@ public class UserInterface {
 
     public static Scanner userInput = new Scanner(System.in);
 
+    public static void clearScreen() {
+        try {
+            String os = System.getProperty("os.name").toLowerCase();
+
+            if (os.contains("win")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                System.out.print("\u001B[2J\u001B[H");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            for (int i = 0; i < 30; i++) {
+                System.out.println();
+            }
+            System.out.flush();
+        }
+    }
+
     public static void showIntro() {
-        GameLogger.print("""
+        renderMessage("""
                 
                 Welcome traveler to this mysterious trial you will be facing!
                 This is the magical land of Marghor, ruled by the tyrannical sorcerer Zoram.
@@ -28,7 +47,7 @@ public class UserInterface {
     }
 
     public static void showIntroMenu() {
-        GameLogger.print("""
+        renderMessage("""
                     1) New Game
                     2) Continue
                     3) Exit
@@ -37,7 +56,7 @@ public class UserInterface {
     }
 
     public static void showMenu() {
-        GameLogger.print("""
+        renderMessage("""
                 
                 Press 'w' to walk forward
                 Press 'a' to move left
@@ -55,29 +74,29 @@ public class UserInterface {
         var playerStats = p.getPlayerStats();
         var playerInformation = p.getPlayerInformation();
 
-        GameLogger.print("------------GENERAL INFORMATION----------");
-        GameLogger.print("\tName: " + playerInformation.name());
-        GameLogger.print("\n\tLevel: " + p.getLevel());
-        GameLogger.print("\n\tProfession: " + playerInformation.profession().getDisplayName());
-        GameLogger.print("\n--------------BASIC ATTRIBUTES----------");
-        GameLogger.print("\tStrength: " + playerStats.getStrength());
-        GameLogger.print("\n\tAgility: " + playerStats.getAgility());
-        GameLogger.print("\n\tIntelligence: " + playerStats.getIntelligence());
-        GameLogger.print("\n-------------------STATS----------------");
-        GameLogger.print("\tHP: " + playerStats.getHealthPoints());
-        GameLogger.print("\n\tMP: " + playerStats.getManaPoints());
-        GameLogger.print("\n\tAttack: " + playerStats.getAttackPoints());
-        GameLogger.print("\n\tDefense: " + playerStats.getDefense());
-        GameLogger.print("\n\tEXP: " + playerStats.getExp());
+        renderMessage("------------GENERAL INFORMATION----------");
+        renderMessage("\tName: " + playerInformation.name());
+        renderMessage("\n\tLevel: " + p.getLevel());
+        renderMessage("\n\tProfession: " + playerInformation.profession().getDisplayName());
+        renderMessage("\n--------------BASIC ATTRIBUTES----------");
+        renderMessage("\tStrength: " + playerStats.getStrength());
+        renderMessage("\n\tAgility: " + playerStats.getAgility());
+        renderMessage("\n\tIntelligence: " + playerStats.getIntelligence());
+        renderMessage("\n-------------------STATS----------------");
+        renderMessage("\tHP: " + playerStats.getHealthPoints());
+        renderMessage("\n\tMP: " + playerStats.getManaPoints());
+        renderMessage("\n\tAttack: " + playerStats.getAttackPoints());
+        renderMessage("\n\tDefense: " + playerStats.getDefense());
+        renderMessage("\n\tEXP: " + playerStats.getExp());
     }
 
     public static void printPlayerHUD(Player p, Enemy e) {
         Stats stats = p.getPlayerStats();
-        GameLogger.print(p.getPlayerInformation().name() + " HP: " + stats.getHealthPoints() + " | MP: " + stats.getManaPoints());
-        GameLogger.print(e.getName() + " HP: " + e.getHealthPoints());
-        GameLogger.print("It is your turn");
-        GameLogger.print("What will your move be?");
-        GameLogger.print("'a' for attack\n'b' for abilities\n");
+        renderMessage(p.getPlayerInformation().name() + " HP: " + stats.getHealthPoints() + " | MP: " + stats.getManaPoints());
+        renderMessage(e.getName() + " HP: " + e.getHealthPoints());
+        renderMessage("It is your turn");
+        renderMessage("What will your move be?");
+        renderMessage("'a' for attack\n'b' for abilities\n");
     }
 
     public static PlayerChoiceCommand readMainMenuChoice() {
@@ -97,10 +116,7 @@ public class UserInterface {
     }
 
     public static String readPlayerName() {
-        renderMessages(java.util.List.of(
-                "Tell us about yourself...",
-                "What is your name, traveler?"
-        ));
+        renderMessages(java.util.List.of("Tell us about yourself...", "What is your name, traveler?"));
         String name = userInput.next();
         if (name.isBlank() || name.length() > 30) {
             renderMessages(List.of("Please enter a valid name. It must be between 1 and 30 characters long."));
@@ -111,10 +127,7 @@ public class UserInterface {
     }
 
     public static char readPlayerProfession() {
-        renderMessages(java.util.List.of(
-                "What do you consider yourself?",
-                "'w' for warrior, 't' for a thief, 'm' for mage"
-        ));
+        renderMessages(java.util.List.of("What do you consider yourself?", "'w' for warrior, 't' for a thief, 'm' for mage"));
 
         char profession = ' ';
 
@@ -122,9 +135,7 @@ public class UserInterface {
         if (in != null && !in.isEmpty()) {
             profession = in.charAt(0);
         }
-        if (profession != 'w' && profession != 'W'
-                && profession != 't' && profession != 'T'
-                && profession != 'm' && profession != 'M') {
+        if (profession != 'w' && profession != 'W' && profession != 't' && profession != 'T' && profession != 'm' && profession != 'M') {
             renderMessages(List.of("Please enter 'w', 't' or 'm'."));
             return readPlayerProfession();
         }
@@ -137,7 +148,7 @@ public class UserInterface {
         while (choice != 'a' && choice != 'b') {
             choice = userInput.next().charAt(0);
             if (choice != 'a' && choice != 'b') {
-                GameLogger.print("Please choose the appropriate choice.\n");
+                renderMessage("Please choose the appropriate choice.\n");
             }
         }
 
@@ -155,26 +166,33 @@ public class UserInterface {
             return;
         }
         for (String msg : messages) {
-            renderMessages(msg);
+            renderMessage(msg);
         }
     }
 
-    public static void renderMessages(String message) {
+    public static void renderMessage(String message) {
         if (message == null || message.isEmpty()) {
             return;
         }
         GameLogger.print(message);
     }
 
+    public static void renderChar(Character character) {
+        if (character == null) {
+            return;
+        }
+        GameLogger.print(character);
+    }
+
     // TODO: have a method to handle showing errors
 
     public static void showEquippedAbilities(Player p) {
         var pa = p.abilitiesFacade();
-        GameLogger.print("-------- Abilities --------");
+        renderMessage("-------- Abilities --------");
         for (AbilitySlot slot : AbilitySlot.values()) {
             var equipped = pa.getEquipped(slot);
             String name = equipped.map(id -> AbilityRegistry.getAbilityMetadata(id).name()).orElse("--- Empty ---");
-            GameLogger.print(slotLabel(slot) + ": " + name);
+            renderMessage(slotLabel(slot) + ": " + name);
         }
     }
 
@@ -188,8 +206,8 @@ public class UserInterface {
     }
 
     public static void printPreBattleIntro(String enemyName) {
-        GameLogger.print("----- BATTLE -----");
-        GameLogger.print("You have stumbled upon a " + enemyName + ", prepare yourself!");
+        renderMessage("----- BATTLE -----");
+        renderMessage("You have stumbled upon a " + enemyName + ", prepare yourself!");
     }
 
     public static MainCommand readMainLoopCommand() {
@@ -205,6 +223,17 @@ public class UserInterface {
                 return cmd.get();
             }
             renderMessages(List.of("Please enter one of: w/a/s/d/i/v/q"));
+        }
+    }
+
+    public static void printMap(Map map) {
+        var gameMap = map.getGameMap();
+
+        for (int i = 0; i < gameMap[0].length; i++) {
+            for (int j = 0; j < gameMap[i].length; j++) {
+                renderChar(gameMap[i][j]);
+            }
+            renderMessage("\n");
         }
     }
 

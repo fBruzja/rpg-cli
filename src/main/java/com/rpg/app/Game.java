@@ -86,7 +86,8 @@ public class Game {
 
         // the game begins
         while (gameState.shouldContinue()) {
-            map.printMap();
+            UserInterface.clearScreen();
+            UserInterface.printMap(map);
             UserInterface.showMenu();
 
             MainCommand cmd = UserInterface.readMainLoopCommand();
@@ -103,9 +104,9 @@ public class Game {
                     data = ResourceManager.createSaveData(player, enemyManager);
                     try {
                         ResourceManager.save(data, SAVE_FILE_PATH);
-                        UserInterface.renderMessages("Data saved successfully!");
+                        UserInterface.renderMessage("Data saved successfully!");
                     } catch (Exception e) {
-                        UserInterface.renderMessages("Could not save: " + e.getMessage());
+                        UserInterface.renderMessage("Could not save: " + e.getMessage());
                     }
                 }
                 break;
