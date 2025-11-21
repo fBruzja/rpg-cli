@@ -76,18 +76,18 @@ public class UserInterface {
 
         renderMessage("------------GENERAL INFORMATION----------");
         renderMessage("\tName: " + playerInformation.name());
-        renderMessage("\n\tLevel: " + p.getLevel());
-        renderMessage("\n\tProfession: " + playerInformation.profession().getDisplayName());
-        renderMessage("\n--------------BASIC ATTRIBUTES----------");
+        renderMessage("\tLevel: " + p.getLevel());
+        renderMessage("\tProfession: " + playerInformation.profession().getDisplayName());
+        renderMessage("--------------BASIC ATTRIBUTES----------");
         renderMessage("\tStrength: " + playerStats.getStrength());
-        renderMessage("\n\tAgility: " + playerStats.getAgility());
-        renderMessage("\n\tIntelligence: " + playerStats.getIntelligence());
-        renderMessage("\n-------------------STATS----------------");
+        renderMessage("\tAgility: " + playerStats.getAgility());
+        renderMessage("\tIntelligence: " + playerStats.getIntelligence());
+        renderMessage("-------------------STATS----------------");
         renderMessage("\tHP: " + playerStats.getHealthPoints());
-        renderMessage("\n\tMP: " + playerStats.getManaPoints());
-        renderMessage("\n\tAttack: " + playerStats.getAttackPoints());
-        renderMessage("\n\tDefense: " + playerStats.getDefense());
-        renderMessage("\n\tEXP: " + playerStats.getExp());
+        renderMessage("\tMP: " + playerStats.getManaPoints());
+        renderMessage("\tAttack: " + playerStats.getAttackPoints());
+        renderMessage("\tDefense: " + playerStats.getDefense());
+        renderMessage("\tEXP: " + playerStats.getExp());
     }
 
     public static void printPlayerHUD(Player p, Enemy e) {
@@ -103,7 +103,7 @@ public class UserInterface {
         while (true) {
             String in = userInput.next();
             if (in == null || in.isEmpty()) {
-                renderMessages(List.of("Please enter a command."));
+                renderMessages(List.of("\nPlease enter a command."));
                 continue;
             }
             char c = in.charAt(0);
@@ -111,12 +111,12 @@ public class UserInterface {
             if (cmd.isPresent()) {
                 return cmd.get();
             }
-            renderMessages(List.of("Please enter one of: 1/2/3"));
+            renderMessages(List.of("\nPlease enter one of: 1/2/3"));
         }
     }
 
     public static String readPlayerName() {
-        renderMessages(java.util.List.of("Tell us about yourself...", "What is your name, traveler?"));
+        renderMessages(List.of("Tell us about yourself...", "What is your name, traveler?"));
         String name = userInput.next();
         if (name.isBlank() || name.length() > 30) {
             renderMessages(List.of("Please enter a valid name. It must be between 1 and 30 characters long."));
@@ -207,7 +207,7 @@ public class UserInterface {
 
     public static void printPreBattleIntro(String enemyName) {
         renderMessage("----- BATTLE -----");
-        renderMessage("You have stumbled upon a " + enemyName + ", prepare yourself!");
+        renderMessage("\nYou have stumbled upon a " + enemyName + ", prepare yourself!");
     }
 
     public static MainCommand readMainLoopCommand() {
@@ -233,7 +233,16 @@ public class UserInterface {
             for (int j = 0; j < gameMap[i].length; j++) {
                 renderChar(gameMap[i][j]);
             }
-            renderMessage("\n");
+            renderMessage(" ");
+        }
+    }
+
+    public static void waitForInput() {
+        renderMessage("\n\nPress enter to continue...");
+        try {
+            System.in.read();
+        } catch (Exception e) {
+            renderMessage("An error occurred while waiting for input.");
         }
     }
 

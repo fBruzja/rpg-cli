@@ -31,3 +31,6 @@ buildNumber.properties
 
 # VS Code
 .vscode/
+
+saves/
+/saves/

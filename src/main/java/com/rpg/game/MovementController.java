@@ -24,7 +24,7 @@ public class MovementController {
             return MovementResult.invalidDirection();
         }
 
-        if (!map.checkIfOutOfBoundaries(target.x(), target.y())) {
+        if (map.checkIfOutOfBoundaries(target.x(), target.y())) {
             return MovementResult.outOfBounds();
         }
 

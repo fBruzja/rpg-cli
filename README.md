@@ -1,12 +1,12 @@
 # An adventure in the Land of Marghor
-A command line Role Playing Game. CLI-RPG [CURRENTLY WIP & NOT STABLE]
+A command line Role Playing Game. CLI-RPG
 ## Getting Started
-This is an assignment project in Java based on Maven with unit testing done in JUnit (Test coverage not nearly sufficient).
+This is an assignment project in Java based on Maven with unit testing to be done in JUnit (Currently no test coverage).
 
 The game takes place in the land of Marghor which is ruled by the evil magician Zoram. Do you have what it takes to defeat him?
 
-Player is represented by an 'X' and the evil sorcerer by a 'Z'. Every other monster in the game has its own marking.
-A typical turn-based rpg with its own exotic difficulty by making the player explore the game's mechanics and even his/her own.
+Player is represented by an '@' and the evil sorcerer by a 'Z'. Every other monster in the game has its own marking.
+A typical turn-based rpg with a simplistic approach to combat.
 ### Prerequisites
 * [Java](https://www.java.com/en/download/) - The programming language used
 * [Maven](https://maven.apache.org/) - Dependency Management
@@ -22,7 +22,7 @@ To run the built project, use the following command in the /target directory
 ```
 java -jar rpg-cli-1.0.jar
 ```
-### IDE
+### IDE - Development
 Run the `main` method in the `com.rpg.app.App` class.
 
 ## Running the tests

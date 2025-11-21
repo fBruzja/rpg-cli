@@ -6,7 +6,7 @@ import com.rpg.characters.data.Position;
 import com.rpg.characters.data.Stats;
 import com.rpg.datamanagement.data.SaveData;
 import com.rpg.game.EnemyManager;
-import com.rpg.utils.GameLogger;
+import com.rpg.userinterface.UserInterface;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,15 +14,13 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ResourceManager {
 
+    public static final String SAVE_FILE_PATH = "saves/character.save";
+
     private ResourceManager() {
     }
-
-    private static final Logger log = LoggerFactory.getLogger(ResourceManager.class);
 
     public static void save(Serializable data, String filename) throws IOException {
         Path filePath = Paths.get(filename);
@@ -40,9 +38,9 @@ public class ResourceManager {
         try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(Paths.get(filename)))) {
             return ois.readObject();
         } catch (IOException exception) {
-            GameLogger.print("Could not load save file: " + filename);
+            UserInterface.renderMessage("Could not load save file: " + filename);
         } catch (ClassNotFoundException exception) {
-            log.error(exception.getMessage());
+            UserInterface.renderMessage(exception.getMessage());
         }
         return null;
     }

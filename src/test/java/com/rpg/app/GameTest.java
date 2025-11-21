@@ -1,15 +1,10 @@
 package com.rpg.app;
 
-import com.rpg.app.Game;
-import com.rpg.characters.Enemy;
-import com.rpg.characters.Player;
-
 //import junit.framework.Test;
 //import junit.framework.TestCase;
 //import junit.framework.TestSuite;
 
 import static org.junit.Assert.assertEquals;
-import org.junit.*;
 
 public class GameTest {
 	

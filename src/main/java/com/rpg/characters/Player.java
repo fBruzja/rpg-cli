@@ -40,6 +40,8 @@ public class Player {
     Stats playerStats;
     PersonalPlayerInformation playerInformation;
 
+    public static char PLAYER_SYMBOL = '@';
+
     // Abilities facade
     private final PlayerAbilities playerAbilities = new PlayerAbilities();
 
@@ -89,7 +91,7 @@ public class Player {
                 playerPosition.setX(playerPosition.getX() + 1);
                 break;
             default:
-                System.out.println("Please enter one of the directions!");
+                UserInterface.renderMessage("Please enter one of the directions!");
         }
     }
 
@@ -199,6 +201,7 @@ public class Player {
     private List<String> learnAndAutoEquipNewAbilities(Profession profession, int level) {
         List<String> messages = new ArrayList<>();
         List<AbilityId> unlocks = unlocksFor(profession, level);
+
         if (unlocks.isEmpty()) {
             return messages;
         }

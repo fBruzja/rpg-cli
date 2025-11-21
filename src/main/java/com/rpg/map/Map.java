@@ -1,5 +1,6 @@
 package com.rpg.map;
 
+import com.rpg.characters.Player;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,8 +19,8 @@ public class Map {
 	}
 
 	private void createGameMapBorders() {
-		for(int i = 1; i < gameMap[0].length - 1; i++) {
-			gameMap[0][i] = '~';
+		for(int i = 1; i < gameMap[0].length; i++) {
+			gameMap[0][i] = '_';
 			gameMap[39][i] = '_';
 			gameMap[i][0] = '|';
 			gameMap[i][39] = '|';
@@ -39,29 +40,31 @@ public class Map {
 	}
 	
 	public boolean checkIfOutOfBoundaries(int x, int y) {
-        return gameMap[x][y] != '|' && gameMap[x][y] != '~' && gameMap[x][y] != '_';
+        char tile = checkTile(x, y);
+        boolean coordinatesOutOfBounds = x < 0 || x > 39 || y < 0 || y > 39;
+        boolean isCharacterTryingToHitWalls = tile == '|' && tile == '~' && tile == '_';
+        return coordinatesOutOfBounds || isCharacterTryingToHitWalls;
     }
 	
 	public void updateMap(int newX, int newY, char movement) {
 		switch(movement) {
-			case 'w': 
-				gameMap[newX + 1][newY] = ' ';
+			case 'w':
+                putEntityInMap(newX + 1, newY, ' ');
 				break;
 			case 'a':
-				gameMap[newX][newY + 1] = ' ';
+                putEntityInMap(newX, newY + 1, ' ');
 				break;
-			case 'd': 
-				gameMap[newX][newY - 1] = ' ';
+			case 'd':
+                putEntityInMap(newX, newY - 1, ' ');
 				break;
 			case 's':
-				gameMap[newX - 1][newY] = ' ';
+                putEntityInMap(newX - 1, newY, ' ');
 				break;
 			default: break;
 		}
-		gameMap[newX][newY] = 'X';
+        putEntityInMap(newX, newY, Player.PLAYER_SYMBOL);
 	}
 
-	// TODO: encounters feel wonky. Perhaps handle them differently
 	public char checkTile(int x, int y) {
         return gameMap[x][y];
 	}
