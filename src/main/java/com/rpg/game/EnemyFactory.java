@@ -14,21 +14,21 @@ public class EnemyFactory {
     public static List<Enemy> createDefaultEnemies() {
         List<Enemy> enemies = new ArrayList<>();
 
-        // Regular enemies (random positions)
-        enemies.add(new Enemy(20, 20, 5, 2, 'G', "Goblin"));
-        enemies.add(new Enemy(20, 20, 5, 2, 'G', "Goblin"));
-        enemies.add(new Enemy(25, 20, 6, 3, 'S', "Skeleton"));
-        enemies.add(new Enemy(25, 20, 6, 3, 'S', "Skeleton"));
-        enemies.add(new Enemy(23, 30, 5, 4, 'R', "Rat-Man"));
-        enemies.add(new Enemy(23, 30, 5, 4, 'R', "Rat-Man"));
-        enemies.add(new Enemy(35, 40, 6, 5, 'D', "Salamander"));
-        enemies.add(new Enemy(35, 40, 6, 5, 'D', "Salamander"));
-        enemies.add(new Enemy(30, 35, 6, 5, 'K', "Kobold"));
-        enemies.add(new Enemy(30, 35, 6, 5, 'K', "Kobold"));
-        enemies.add(new Enemy(35, 100, 7, 5, 'P', "Spectre"));
+        // Regular enemies
+        enemies.add(createEnemy(EnemyType.GOBLIN));
+        enemies.add(createEnemy(EnemyType.GOBLIN));
+        enemies.add(createEnemy(EnemyType.SKELETON));
+        enemies.add(createEnemy(EnemyType.SKELETON));
+        enemies.add(createEnemy(EnemyType.RAT_MAN));
+        enemies.add(createEnemy(EnemyType.RAT_MAN));
+        enemies.add(createEnemy(EnemyType.SALAMANDER));
+        enemies.add(createEnemy(EnemyType.SALAMANDER));
+        enemies.add(createEnemy(EnemyType.KOBOLD));
+        enemies.add(createEnemy(EnemyType.KOBOLD));
+        enemies.add(createEnemy(EnemyType.SPECTRE));
 
-        // Boss (random position)
-        enemies.add(new Enemy(70, 100, 10, 10, 'Z', ZORAM));
+        // Boss
+        enemies.add(createEnemy(EnemyType.ZORAM));
 
         return enemies;
     }

@@ -92,8 +92,8 @@ public class UserInterface {
 
     public static void printPlayerHUD(Player p, Enemy e) {
         Stats stats = p.getPlayerStats();
-        renderMessage(p.getPlayerInformation().name() + " HP: " + stats.getHealthPoints() + " | MP: " + stats.getManaPoints());
-        renderMessage(e.getName() + " HP: " + e.getHealthPoints());
+        renderMessage(p.getPlayerInformation().name() + "\nHP: " + stats.getHealthPoints() + " | MP: " + stats.getManaPoints());
+        renderMessage(e.getName() + "\nHP: " + e.getHealthPoints());
         renderMessage("It is your turn");
         renderMessage("What will your move be?");
         renderMessage("'a' for attack\n'b' for abilities\n");
@@ -103,7 +103,7 @@ public class UserInterface {
         while (true) {
             String in = userInput.next();
             if (in == null || in.isEmpty()) {
-                renderMessages(List.of("\nPlease enter a command."));
+                renderMessages(List.of("Please enter a command.\n"));
                 continue;
             }
             char c = in.charAt(0);
@@ -111,15 +111,15 @@ public class UserInterface {
             if (cmd.isPresent()) {
                 return cmd.get();
             }
-            renderMessages(List.of("\nPlease enter one of: 1/2/3"));
+            renderMessages(List.of("Please enter one of: 1/2/3\n"));
         }
     }
 
     public static String readPlayerName() {
-        renderMessages(List.of("Tell us about yourself...", "What is your name, traveler?"));
+        renderMessages(List.of("Tell us about yourself...", "What is your name, traveler?\n"));
         String name = userInput.next();
         if (name.isBlank() || name.length() > 30) {
-            renderMessages(List.of("Please enter a valid name. It must be between 1 and 30 characters long."));
+            renderMessages(List.of("Please enter a valid name. It must be between 1 and 30 characters long.\n"));
             return readPlayerName();
         }
         userInput.reset();
@@ -127,7 +127,7 @@ public class UserInterface {
     }
 
     public static char readPlayerProfession() {
-        renderMessages(java.util.List.of("What do you consider yourself?", "'w' for warrior, 't' for a thief, 'm' for mage"));
+        renderMessages(List.of("What do you consider yourself?", "'w' for warrior, 't' for a thief, 'm' for mage\n"));
 
         char profession = ' ';
 
@@ -136,7 +136,7 @@ public class UserInterface {
             profession = in.charAt(0);
         }
         if (profession != 'w' && profession != 'W' && profession != 't' && profession != 'T' && profession != 'm' && profession != 'M') {
-            renderMessages(List.of("Please enter 'w', 't' or 'm'."));
+            renderMessages(List.of("Please enter 'w', 't' or 'm'.\n"));
             return readPlayerProfession();
         }
         return profession;
@@ -184,37 +184,40 @@ public class UserInterface {
         GameLogger.print(character);
     }
 
-    // TODO: have a method to handle showing errors
-
     public static void showEquippedAbilities(Player p) {
         var pa = p.abilitiesFacade();
         renderMessage("-------- Abilities --------");
         for (AbilitySlot slot : AbilitySlot.values()) {
             var equipped = pa.getEquipped(slot);
             String name = equipped.map(id -> AbilityRegistry.getAbilityMetadata(id).name()).orElse("--- Empty ---");
-            renderMessage(slotLabel(slot) + ": " + name);
+            renderMessage(slotLabel(slot) + name);
         }
+        renderChar('\n');
     }
 
     private static String slotLabel(AbilitySlot slot) {
         return switch (slot) {
-            case SLOT_1 -> "0) SLOT_1";
-            case SLOT_2 -> "1) SLOT_2";
-            case SLOT_3 -> "2) SLOT_3";
-            case SLOT_4 -> "3) SLOT_4";
+            case SLOT_1 -> "0) ";
+            case SLOT_2 -> "1) ";
+            case SLOT_3 -> "2) ";
+            case SLOT_4 -> "3) ";
         };
     }
 
-    public static void printPreBattleIntro(String enemyName) {
+    public static void printPreBattleIntro(Enemy enemy) {
         renderMessage("----- BATTLE -----");
-        renderMessage("\nYou have stumbled upon a " + enemyName + ", prepare yourself!");
+        if(enemy.isBoss()) {
+            renderMessage("You now face " + enemy.getName() + "! Prepare yourself for the final battle!");
+            return;
+        }
+        renderMessage("You have stumbled upon a " + enemy.getName() + ", prepare yourself!");
     }
 
     public static MainCommand readMainLoopCommand() {
         while (true) {
             String in = userInput.next();
             if (in == null || in.isEmpty()) {
-                renderMessages(List.of("Please enter a command."));
+                renderMessages(List.of("Please enter a command.\n"));
                 continue;
             }
             char c = in.charAt(0);
@@ -222,7 +225,7 @@ public class UserInterface {
             if (cmd.isPresent()) {
                 return cmd.get();
             }
-            renderMessages(List.of("Please enter one of: w/a/s/d/i/v/q"));
+            renderMessages(List.of("Please enter one of: w/a/s/d/i/v/q\n"));
         }
     }
 
@@ -233,12 +236,12 @@ public class UserInterface {
             for (int j = 0; j < gameMap[i].length; j++) {
                 renderChar(gameMap[i][j]);
             }
-            renderMessage(" ");
+            renderChar('\n');
         }
     }
 
     public static void waitForInput() {
-        renderMessage("\n\nPress enter to continue...");
+        renderMessage("Press enter to continue...");
         try {
             System.in.read();
         } catch (Exception e) {

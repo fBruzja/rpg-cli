@@ -7,7 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Map {
-	private char[][] gameMap = new char[40][40];
+    public static final int mapWidth = 30;
+    public static final int mapHeight = 30;
+    private static final char CEILING_CHAR = '_';
+    private static final char WALL_CHAR = '|';
+
+	private char[][] gameMap = new char[mapWidth][mapHeight];
 
 	public Map() {
 		generateGameMapLayout();
@@ -20,10 +25,10 @@ public class Map {
 
 	private void createGameMapBorders() {
 		for(int i = 1; i < gameMap[0].length; i++) {
-			gameMap[0][i] = '_';
-			gameMap[39][i] = '_';
-			gameMap[i][0] = '|';
-			gameMap[i][39] = '|';
+			gameMap[0][i] = CEILING_CHAR;
+			gameMap[mapWidth - 1][i] = CEILING_CHAR;
+			gameMap[i][0] = WALL_CHAR;
+			gameMap[i][mapHeight - 1] = WALL_CHAR;
 		}
 	}
 
@@ -41,8 +46,8 @@ public class Map {
 	
 	public boolean checkIfOutOfBoundaries(int x, int y) {
         char tile = checkTile(x, y);
-        boolean coordinatesOutOfBounds = x < 0 || x > 39 || y < 0 || y > 39;
-        boolean isCharacterTryingToHitWalls = tile == '|' && tile == '~' && tile == '_';
+        boolean coordinatesOutOfBounds = x < 0 || x > mapWidth || y < 0 || y > mapHeight;
+        boolean isCharacterTryingToHitWalls = tile == WALL_CHAR || tile == CEILING_CHAR;
         return coordinatesOutOfBounds || isCharacterTryingToHitWalls;
     }
 	

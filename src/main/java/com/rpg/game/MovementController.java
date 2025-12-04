@@ -1,11 +1,9 @@
 package com.rpg.game;
 
-import com.rpg.characters.Enemy;
 import com.rpg.characters.Player;
 import com.rpg.game.outcome.MovementResult;
 import com.rpg.map.Coordinates;
 import com.rpg.map.Map;
-import java.util.List;
 
 public class MovementController {
 
@@ -31,7 +29,7 @@ public class MovementController {
         char encounter = map.checkTile(target.x(), target.y());
 
         map.updateMap(target.x(), target.y(), movement);
-        player.move(movement);
+        player.move(target);
 
         return MovementResult.success(target, encounter);
     }

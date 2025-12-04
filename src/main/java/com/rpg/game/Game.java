@@ -36,6 +36,7 @@ public class Game {
         SaveData data;
 
         UserInterface.showIntro();
+
         while (player == null) {
             UserInterface.showIntroMenu();
 
@@ -60,7 +61,7 @@ public class Game {
                         if (data.getEnemyManager() != null) {
                             copyEnemyManagerState(data.getEnemyManager());
                         } else {
-                            // Old save without enemy data - initialize defaults
+                            // Old save without enemy data - initialize defaults (backwards compatibility)
                             enemyManager.spawnEnemies(EnemyFactory.createDefaultEnemies());
                         }
                         UserInterface.renderMessage("\tGAME LOADED");
@@ -166,6 +167,7 @@ public class Game {
         }
 
         UserInterface.renderMessages(battleResult.messages());
+        UserInterface.waitForInput();
     }
 
     private void putCharacterAndNpcsIntoMap(Player player) {

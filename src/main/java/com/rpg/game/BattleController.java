@@ -20,7 +20,7 @@ public class BattleController {
         boolean playerDied = false;
         boolean enemyDied = false;
 
-        UserInterface.printPreBattleIntro(enemy.getName());
+        UserInterface.printPreBattleIntro(enemy);
 
         // Battle loop
         while(player.getPlayerStats().getHealthPoints() > 0 && enemy.getHealthPoints() > 0) {
@@ -143,7 +143,6 @@ public class BattleController {
         if (enemyDied) {
             return List.of(
                     "Victory!",
-                    "You defeated the " + enemy.getName() + "!",
                     "You gained " + enemy.getExpAmountWhenKilled() + " experience points!"
             );
         }

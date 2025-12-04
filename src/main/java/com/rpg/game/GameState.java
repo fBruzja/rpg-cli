@@ -34,12 +34,4 @@ public class GameState {
     public boolean shouldContinue() {
         return !gameOver && !zoramDefeated;
     }
-
-    /**
-     * Resets the game state for a new game
-     */
-    public void reset() {
-        this.zoramDefeated = false;
-        this.gameOver = false;
-    }
 }

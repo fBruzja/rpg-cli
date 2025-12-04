@@ -14,6 +14,7 @@ import com.rpg.characters.data.Stats;
 import com.rpg.game.AttackBonusType;
 import com.rpg.game.outcome.AbilityOutcome;
 import com.rpg.game.outcome.AttackOutcome;
+import com.rpg.map.Coordinates;
 import com.rpg.userinterface.UserInterface;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +30,8 @@ public class Player {
     public static final int STAT_VALUE_MULTIPLIER_VALUE = 5;
     public static final int STAT_VALUE_DIVIDER_VALUE = 2;
     public static final int MAX_LEVEL = 10;
-    public static final int STARTING_X_COORDINATE = 38;
-    public static final int STARTING_Y_COORDINATE = 19;
+    public static final int STARTING_X_COORDINATE = 28;
+    public static final int STARTING_Y_COORDINATE = 15;
 
     /* All stats are based upon the basic attributes */
 
@@ -60,7 +61,7 @@ public class Player {
                 .build();
         this.playerPosition = new Position(STARTING_X_COORDINATE, STARTING_Y_COORDINATE);
 
-        //TODO: Profession selection needs a revamp as well!!!
+        //TODO: Profession selection needs a revamp as well! (maybe?)
         Profession selectedProfession = Profession.WARRIOR;
 
         if (newProfession == 't' || newProfession == 'T') {
@@ -76,23 +77,9 @@ public class Player {
         this.playerInformation = new PersonalPlayerInformation(newName, selectedProfession);
     }
 
-    public void move(char movement) {
-        switch (movement) {
-            case 'w':
-                playerPosition.setX(playerPosition.getX() - 1);
-                break;
-            case 'a':
-                playerPosition.setY(playerPosition.getY() - 1);
-                break;
-            case 'd':
-                playerPosition.setY(playerPosition.getY() + 1);
-                break;
-            case 's':
-                playerPosition.setX(playerPosition.getX() + 1);
-                break;
-            default:
-                UserInterface.renderMessage("Please enter one of the directions!");
-        }
+    public void move(Coordinates target) {
+        playerPosition.setX(target.x());
+        playerPosition.setY(target.y());
     }
 
     public AttackOutcome physicalAttack(Enemy defender, boolean poison) {

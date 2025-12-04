@@ -1,6 +1,7 @@
 package com.rpg.characters;
 
 import com.rpg.characters.data.Stats;
+import com.rpg.map.Map;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Random;
@@ -40,10 +41,9 @@ public class Enemy implements Serializable {
         this.name = newName;
         this.icon = newIcon;
 
-        // generating random positions for the monster
         Random rand = new Random();
-        this.xPosition = rand.nextInt((37 - 1) + 1) + 1;
-        this.yPosition = rand.nextInt((37 - 1) + 1) + 1;
+        this.xPosition = getRandomEnemyInitialPosition(rand, Map.mapWidth, Player.STARTING_X_COORDINATE);
+        this.yPosition = getRandomEnemyInitialPosition(rand, Map.mapHeight, Player.STARTING_Y_COORDINATE);
     }
 
     public Enemy(
@@ -81,6 +81,14 @@ public class Enemy implements Serializable {
 
     public void reduceHealth(int damage) {
         healthPoints = Math.max(0, healthPoints - damage); // Prevent negative health
+    }
+
+    private int getRandomEnemyInitialPosition(Random rand, int dimension, int exception) {
+        int positionToBeGenerated = exception;
+        while (positionToBeGenerated == exception) {
+            positionToBeGenerated = rand.nextInt(dimension - 3) + 1;
+        }
+        return positionToBeGenerated;
     }
 
 }
